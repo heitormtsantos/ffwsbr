@@ -246,6 +246,7 @@
         <button onclick="navigate('maps')" id="nav-maps">Mapas</button>
         <button onclick="navigate('compare')" id="nav-compare">Comparar 1v1</button>
         <button onclick="navigate('schedule')" id="nav-schedule">Próximos Confrontos</button>
+        <button onclick="navigate('history')" id="nav-history">Histórico WB</button>
     </div>
 </nav>
 
@@ -468,6 +469,34 @@
         </div>
     </div>
 
+    <div id="history" class="page">
+        <h2>Top 100 Abates (All-Time WB)</h2>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">
+            Ranking histórico somado em tempo real com o desempenho da edição 2026.<br>
+            <span style="font-size: 0.85em;">* Jogadores inativos não podem ser clicados.</span>
+        </p>
+
+        <div class="table-container">
+            <table id="table-history">
+                <thead>
+                    <tr>
+                        <th title="Posição Atual / Variação" style="width: 60px;">Pos ↕</th>
+                        <th style="text-align:left;">Jogador</th>
+                        <th>Equipe Atual</th>
+                        <th title="Kills Totais">
+                            <span class="full-name-desktop">Abates</span><span class="short-name-mobile">A</span>
+                        </th>
+                        <th title="Total de Quedas">
+                            <span class="full-name-desktop">Quedas</span><span class="short-name-mobile">Q</span>
+                        </th>
+                        <th title="Média K/D Histórica">Média</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- PAGE: COMPARAR -->
     <div id="compare" class="page">
         <h2>Comparar Times e Jogadores</h2>
@@ -605,6 +634,39 @@ const shortNames = {
     'LOS': 'LOS', 'LOUD SNICKERS': 'LOUD', 'INTZ': 'INTZ', 'RISE GAMING': 'RISE',
     'VIRTUS PRO': 'VP', 'ALPHA7': 'A7', 'RUSH GAMING': 'RUSH', 'ANGELS OUTPLAY': 'ANOP'
 };
+
+// Dicionário para "traduzir" o nome da Liquipedia para o nosso Banco
+const historicalAliases = {
+    "Lost": "Lost21", "NANDO9": "Naandox", "NandoX": "Naandox", "But": "BuTziN", "General": "General!",
+    "VITINxp": "vitinxp", "PÃO7": "Pão7", "DRAXX7": "Draxx7", "Stark7": "Stark", "GIUH.87": "Giuh",
+    "Motovea7": "Motovea", "Nickz7": "NICKZ", "HONEY": "honeyzL", "Cauã": "Cauã9", "PETERxl": "PETER",
+    "o Mala": "Mala", "Zetsu9": "ZETSU9", "iguiNmvp": "IguiNmvp", "KakaZk": "KaKaZk", "Prozin10": "PROZIN",
+    "Hak": "HAK", "Erick11": "Erick11"
+};
+
+// Top 100 Histórico (Extraído da Liquipedia)
+const histData = [
+    {n:"Yago", k:1786, q:928}, {n:"Cauan7", k:1652, q:1095}, {n:"Lost", k:1412, q:988}, {n:"NANDO9", k:1404, q:889}, {n:"Bops", k:1369, q:888},
+    {n:"Rigby245", k:1317, q:781}, {n:"TRAP", k:1316, q:769}, {n:"Raone7", k:1311, q:652}, {n:"But", k:1297, q:904}, {n:"Gus", k:1284, q:942},
+    {n:"General", k:1269, q:1082}, {n:"MODESTIA", k:1240, q:1047}, {n:"VITINxp", k:1237, q:923}, {n:"PÃO7", k:1154, q:1034}, {n:"DRAXX7", k:1125, q:839},
+    {n:"MT7", k:1121, q:562}, {n:"R7", k:1020, q:962}, {n:"BIELGOD", k:989, q:911}, {n:"Mts007", k:946, q:762}, {n:"Razure", k:941, q:864},
+    {n:"Noda", k:930, q:816}, {n:"Stark7", k:901, q:652}, {n:"GIUH.87", k:901, q:572}, {n:"ERICKMVP", k:898, q:617}, {n:"Syaz", k:894, q:631},
+    {n:"Motovea7", k:890, q:560}, {n:"Nickz7", k:881, q:512}, {n:"CHINÊS", k:854, q:734}, {n:"Lobato", k:849, q:871}, {n:"ITALO", k:800, q:781},
+    {n:"OUSADO", k:797, q:620}, {n:"Vitin9", k:786, q:592}, {n:"GUAXA", k:780, q:657}, {n:"NandoX", k:762, q:580}, {n:"HONEY", k:752, q:635},
+    {n:"TATU13", k:735, q:676}, {n:"BAND", k:701, q:536}, {n:"FON", k:685, q:618}, {n:"Cauã", k:658, q:596}, {n:"João7", k:650, q:573},
+    {n:"JapaBKR", k:632, q:588}, {n:"Proxx7", k:596, q:457}, {n:"DeadGOD", k:593, q:604}, {n:"PETERxl", k:572, q:340}, {n:"o Mala", k:559, q:358},
+    {n:"Yato7", k:525, q:456}, {n:"Ruan", k:522, q:513}, {n:"CHUCKY", k:512, q:507}, {n:"Natividade", k:502, q:544}, {n:"KaueLOK", k:490, q:410},
+    {n:"Lins7", k:484, q:419}, {n:"DORITO", k:481, q:420}, {n:"Addy7", k:477, q:425}, {n:"Mexico", k:476, q:373}, {n:"Kroonos", k:468, q:517},
+    {n:"Hak", k:456, q:334}, {n:"Memgod", k:452, q:444}, {n:"JapaXL", k:449, q:520}, {n:"Erick11", k:435, q:380}, {n:"EASY", k:420, q:387},
+    {n:"Nikeboy", k:413, q:319}, {n:"Zenac", k:411, q:569}, {n:"RiccK", k:408, q:488}, {n:"wLiu", k:400, q:364}, {n:"mvR", k:398, q:419},
+    {n:"Jubinha", k:377, q:429}, {n:"Phoenix23", k:375, q:585}, {n:"Goabe7", k:363, q:507}, {n:"Guiga", k:361, q:385}, {n:"NICOLAS9", k:357, q:368},
+    {n:"Zetsu9", k:357, q:334}, {n:"iguiNmvp", k:354, q:296}, {n:"CEBOLINHA", k:352, q:370}, {n:"one9", k:351, q:405}, {n:"Prozin10", k:349, q:369},
+    {n:"Mike", k:345, q:454}, {n:"HENDER", k:341, q:389}, {n:"KakaZk", k:341, q:255}, {n:"Cruel", k:332, q:359}, {n:"Luan7", k:332, q:279},
+    {n:"Fac", k:331, q:357}, {n:"brota10", k:326, q:254}, {n:"Guifox", k:324, q:318}, {n:"Federal7", k:314, q:220}, {n:"Isopor21", k:311, q:368},
+    {n:"VICTOR7", k:305, q:381}, {n:"Will", k:304, q:345}, {n:"JucaW", k:303, q:241}, {n:"CAUE", k:301, q:338}, {n:"Azay", k:278, q:317},
+    {n:"LENNO", k:265, q:404}, {n:"Nobru", k:262, q:308}, {n:"MAMUTEZL", k:257, q:319}, {n:"RafaX", k:256, q:350}, {n:"Field", k:255, q:331},
+    {n:"MTS7", k:255, q:211}, {n:"KMX", k:255, q:285}, {n:"Moreira", k:250, q:372}, {n:"GØDKILL", k:248, q:264}, {n:"PEDRO.RS", k:245, q:294}
+];
 
 const db = {
     teams: [
@@ -1431,7 +1493,9 @@ window.onload = () => {
     renderAllPlayers();
     renderIndividualRecords();
     renderMapData();
+    renderHistoricalRanking(); // <--- INCLUA AQUI
     updateCountdown();
+
     setInterval(updateCountdown, 1000);
 };
 
@@ -1454,6 +1518,67 @@ function navigate(pageId) {
     if (window.innerWidth <= 768) {
         document.getElementById('nav-links').classList.remove('active');
     }
+}
+
+function renderHistoricalRanking() {
+    let tbody = document.querySelector('#table-history tbody');
+    
+    // 1. Clona e soma as estatísticas atuais
+    let currentRankData = histData.map((p, index) => {
+        let activeName = historicalAliases[p.n] || p.n;
+        
+        // Procura no nosso banco se o cara está jogando
+        let activePlayer = db.players.find(x => x.jogador.toLowerCase() === activeName.toLowerCase());
+        let isPlaying = activePlayer && !activePlayer.isEx; // Checa se tá ativo na WB
+        
+        let currentKills = activePlayer ? (activePlayer.abates || 0) : 0;
+        let currentQuedas = activePlayer ? (activePlayer.quedas || 0) : 0;
+        
+        return {
+            oldPos: index + 1,
+            originalName: p.n,
+            activeName: activeName,
+            isPlaying: isPlaying,
+            equipe: isPlaying ? activePlayer.equipe : null,
+            totalKills: p.k + currentKills,
+            totalQuedas: p.q + currentQuedas
+        };
+    });
+
+    // 2. Reordena pelo novo número de kills
+    currentRankData.sort((a, b) => b.totalKills - a.totalKills);
+
+    // 3. Monta o HTML com a variação de posição
+    tbody.innerHTML = currentRankData.map((p, i) => {
+        let newPos = i + 1;
+        let diff = p.oldPos - newPos;
+        let shiftHtml = '';
+        
+        if (diff > 0) shiftHtml = `<span style="color:#4caf50; font-size:0.8em; font-weight:bold;">▲ ${diff}</span>`;
+        else if (diff < 0) shiftHtml = `<span style="color:#f44336; font-size:0.8em; font-weight:bold;">▼ ${Math.abs(diff)}</span>`;
+        else shiftHtml = `<span style="color:#888; font-size:0.8em; font-weight:bold;">-</span>`;
+
+        let avg = (p.totalKills / (p.totalQuedas || 1)).toFixed(2);
+        
+        // Bloqueia o clique se estiver inativo
+        let nameHtml = p.isPlaying ? 
+            `<span class="clickable" onclick="openPlayerProfile('${p.activeName}')">${p.originalName}</span>` : 
+            `<span style="color:#aaa; cursor:not-allowed;" title="Inativo/Sem Equipe">${p.originalName}</span>`;
+            
+        // Renderiza o time atual ou "Free Agent"
+        let teamHtml = p.isPlaying ? 
+            `<div class="team-cell" style="justify-content:center;"><img src="${logos[p.equipe]||''}" class="team-logo"><span class="hide-mobile">${shortNames[p.equipe] || p.equipe}</span></div>` : 
+            `<span style="color:#666; font-size:0.85em; text-transform:uppercase;">🚫 Sem Equipe</span>`;
+
+        return `<tr>
+            <td><div style="font-size:1.1em; color:var(--accent); font-weight:bold;">${newPos}º</div>${shiftHtml}</td>
+            <td style="text-align:left;">${nameHtml}</td>
+            <td>${teamHtml}</td>
+            <td style="color:#fff; font-weight:bold; font-size: 1.1em;">${p.totalKills}</td>
+            <td>${p.totalQuedas}</td>
+            <td style="color:#ffaa00; font-weight:bold;">${avg}</td>
+        </tr>`;
+    }).join('');
 }
 
 function createPlayerCardHTML(p, scale = 1) {
