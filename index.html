@@ -134,10 +134,15 @@
             display: none !important; 
         }
 
-        /* Ajusta a largura das colunas para a logo respirar */
-        #table-teams-full td:nth-child(2) {
-            width: 50px;
-            text-align: center;
+#table-teams-full td:nth-child(2) {
+            text-align: center !important;
+            justify-content: center !important;
+            width: 60px; /* Largura fixa para não empurrar as outras colunas */
+        }
+        
+        /* Ajuste para as siglas não quebrarem linha */
+        .short-name-mobile {
+            white-space: nowrap;
         }
 
         /* Ajuste fino para o Ranking do Confronto (Modal) não encavalar */
@@ -145,6 +150,11 @@
             padding: 8px 2px !important;
             font-size: 0.8em;
         }
+/* Alinhamento padrão para PC */
+#table-teams-full td:nth-child(2) {
+    text-align: left !important;
+    justify-content: flex-start !important;
+}
     }
 
     /* Cronograma */
@@ -179,33 +189,48 @@
     .team-logo { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; margin-right: 8px; border-radius: 4px; }
     .team-cell { display: flex; align-items: center; justify-content: flex-start; text-align: left; }
 
-/* A MINHA CORREÇÃO MOBILE */
+/* PADRÕES PARA DESKTOP (PC) */
     .hide-on-desktop { display: none; }
-    .short-name-mobile { display: none; } /* Esconde o nome curto no PC */
+    .short-name-mobile { display: none; } /* Esconde a sigla no PC */
+    .team-logo-mobile-full { display: inline-block; } /* Mostra a logo no PC */
 
+    /* REGRAS PARA O MOBILE (CELULAR) */
     @media (max-width: 768px) {
         .hide-on-desktop { display: block; }
         
+        /* 1. Esconde o nome longo no celular sempre */
         .full-name-desktop { display: none !important; }
-        .short-name-mobile { display: inline !important; }
         
-        /* Esconde os itens com hide-mobile quando a tabela está normal */
+        /* 2. Comportamento Padrão (Tabela Fechada): Mostra Sigla, Esconde Logo */
+        .short-name-mobile { display: inline !important; }
+        .team-logo-mobile-full { display: none !important; }
+
+        /* 3. Comportamento Expandido (Tabela Aberta): Esconde Sigla, Mostra Logo */
+        .full-view .short-name-mobile { display: none !important; }
+        .full-view .team-logo-mobile-full { display: block !important; margin: 0 auto; }
+
+        /* Esconde colunas extras se a tabela não estiver expandida */
         table:not(.full-view) .hide-mobile { display: none !important; }
         
-        /* REGRA NOVA: Esconde a coluna GP (3ª coluna) SEMPRE no mobile */
+        /* Oculta Grupo da tabela principal sempre no mobile */
         #table-teams-full th:nth-child(3), 
-        #table-teams-full td:nth-child(3) { 
-            display: none !important; 
-        }
+        #table-teams-full td:nth-child(3) { display: none !important; }
 
+        /* Ajustes de espaçamento para caber tudo */
         table { table-layout: fixed; width: 100%; }
         th, td { padding: 8px 2px !important; font-size: 0.85em; }
         .table-container { overflow-x: auto; }
         
-        /* Dá mais espaço para o nome do time agora que o grupo sumiu */
         #table-teams-full td:nth-child(2) {
-            text-align: left;
-            width: 35%; /* Ocupa mais espaço na linha */
+            text-align: center;
+            width: 60px;
+        }
+
+        /* Impede transbordo nos nomes dos jogadores */
+        #table-team-players td {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 
@@ -1665,20 +1690,18 @@ function renderFullTeams() {
     let tableData = getAggregatedTeams(selectedTeamDays);
     if (selectedTeamDays.length > 0) tableData = tableData.filter(t => !t.didNotPlay);
     
-    // Garante que a tabela inicie ordenada por pontos
     tableData.sort((a, b) => b.pontos - a.pontos);
-    
     let tbody = document.querySelector('#table-teams-full tbody');
     
     tbody.innerHTML = tableData.map((t, index) => {
         let pos = selectedTeamDays.length === 0 ? t.posGeral : (index + 1);
-        let logoSrc = logos[t.equipe] ? logos[t.equipe] : '';
-        let sName = shortNames[t.equipe] || t.equipe; // Pega o nome curto
+        let logoSrc = logos[t.equipe] || '';
+        let sName = shortNames[t.equipe] || t.equipe;
         
+// Procure essa parte dentro do return da função renderFullTeams
         return `<tr>
             <td style="color:var(--accent); font-weight:bold;">${pos}º</td>
-            <td class="team-cell">
-                <img src="${logoSrc}" class="team-logo" alt="">
+            <td class="team-cell"> <img src="${logoSrc}" class="team-logo team-logo-mobile-full clickable" onclick="openTeamProfile('${t.equipe}')">
                 <span class="clickable full-name-desktop" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span>
                 <span class="clickable short-name-mobile" onclick="openTeamProfile('${t.equipe}')">${sName}</span>
             </td>
@@ -2022,17 +2045,26 @@ function renderTeamProfileStats() {
         container.innerHTML = topRowHtml + averagesRowHtml + totalsRowHtml;
     }
 
-    // --- 4. TABELA INTERNA (ORDEM CORRIGIDA) ---
-    let tbody = document.querySelector('#table-team-players tbody');
-    tbody.innerHTML = players.sort((a,b) => b.abates - a.abates).map(p => `<tr>
-        <td style="text-align:left;"><span class="clickable" onclick="openPlayerProfile('${p.jogador}')">${p.jogador}</span></td>
-        <td style="color:var(--accent); font-weight:bold;">${p.abates}</td>
-        <td>${p.dano}</td>
-        <td>${p.assists}</td>
-        <td style="color:var(--text-muted); font-weight:bold;">${p.quedas}</td>
-        <td>${p.mvp || 0}</td>
-    </tr>`).join('');
+let tbody = document.querySelector('#table-team-players tbody');
+    tbody.innerHTML = players.sort((a,b) => b.abates - a.abates).map(p => {
+        // Lógica de reticências: se o nome for maior que 6, corta e põe "..."
+        let nameDisplay = p.jogador.length > 6 ? p.jogador.substring(0, 6) + "..." : p.jogador;
+
+        return `<tr>
+            <td style="text-align:left;">
+                <span class="clickable" onclick="openPlayerProfile('${p.jogador}')" title="${p.jogador}">
+                    ${nameDisplay}
+                </span>
+            </td>
+            <td style="color:var(--accent); font-weight:bold;">${p.abates}</td>
+            <td>${p.dano}</td>
+            <td>${p.assists}</td>
+            <td style="color:var(--text-muted); font-weight:bold;">${p.quedas}</td>
+            <td>${p.mvp || 0}</td>
+        </tr>`;
+    }).join('');
 }
+    
 
 function getConfrontationData() {
     let tName = currentTeamView;
