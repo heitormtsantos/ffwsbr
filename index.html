@@ -564,14 +564,14 @@ const playerRoles = {
 };
 
 const playerPhotos = {
-    "MT7": "mt7.png","Bops": "bops.png", "Giuh": "silhueta.png", "BuTziN": "silhueta.png", "Proxx7": "silhueta.png",
+    "MT7": "mt7.png","Bops": "silhueta.png", "Giuh": "silhueta.png", "BuTziN": "silhueta.png", "Proxx7": "silhueta.png",
     "Pitbull": "silhueta.png", "PETER": "silhueta.png", "vitinxp": "silhueta.png", "Motovea": "silhueta.png", "BYTE333": "silhueta.png",
     "Pão7": "silhueta.png", "Cauã9": "silhueta.png", "Juca10xL": "silhueta.png", "Lyon": "silhueta.png",
     "lippe!": "silhueta.png", "itzking1": "silhueta.png", "Razure": "silhueta.png", "IGOR7": "silhueta.png",
-    "HAK": "silhueta.png", "NICKZ": "silhueta.png", "TRAP": "trap.png", "GUAXA": "silhueta.png", "BZP": "silhueta.png",
-    "Sam7": "silhueta.png", "JNmvp7": "jnmvp.png", "Brisa7": "silhueta.png", "NEYawp": "silhueta.png", "MitoMvp": "silhueta.png",
+    "HAK": "silhueta.png", "NICKZ": "silhueta.png", "TRAP": "silhueta.png", "GUAXA": "silhueta.png", "BZP": "silhueta.png",
+    "Sam7": "silhueta.png", "JNmvp7": "silhueta.png", "Brisa7": "silhueta.png", "NEYawp": "silhueta.png", "MitoMvp": "silhueta.png",
     "BLACK02": "silhueta.png", "LC777": "silhueta.png", "GUIMERLQ": "silhueta.png", "PROZIN": "silhueta.png", "MitinX": "silhueta.png",
-    "Rigby245": "silhueta.png", "General!": "silhueta.png", "Raone7": "silhueta.png", "Yago": "yago.png", "mtsexy.": "silhueta.png",
+    "Rigby245": "silhueta.png", "General!": "silhueta.png", "Raone7": "silhueta.png", "Yago": "silhueta.png", "mtsexy.": "silhueta.png",
     "João7": "silhueta.png", "kauãxp": "silhueta.png", "GUS": "silhueta.png", "honeyzL": "silhueta.png",
     "Bahiaz7": "silhueta.png", "BIELGOD": "silhueta.png", "Rojão": "silhueta.png", "ZETSU9": "silhueta.png",
     "Yann7awp": "silhueta.png", "SOARES": "silhueta.png", "Redxzzz": "silhueta.png", "Theus": "silhueta.png", "wLiu": "silhueta.png",
@@ -618,7 +618,7 @@ const db = {
     players: [
         { jogador: "BIELGOD", equipe: "VASCO ESPORTS" },
         { jogador: "BLACK02", equipe: "RUSH GAMING" },
-        { jogador: "BRUNO7w", equipe: "E1 SPORTS" },
+        { jogador: "BRUNO7w", equipe: "E1 SPORTS", isEx: true },
         { jogador: "BYTE333", equipe: "TEAM SOLID" },
         { jogador: "BZP", equipe: "LOUD SNICKERS" },
         { jogador: "Bahiaz7", equipe: "VASCO ESPORTS" },
@@ -632,7 +632,7 @@ const db = {
         { jogador: "Draxx7", equipe: "LOOPS" },
         { jogador: "Erick11", equipe: "RISE GAMING" },
         { jogador: "Ericking", equipe: "LOOPS" },
-        { jogador: "Fixa.10", equipe: "ANGELS OUTPLAY" },
+        { jogador: "Fixa.10", equipe: "ANGELS OUTPLAY", isEx: true },
         { jogador: "GUAXA", equipe: "LOUD SNICKERS" },
         { jogador: "GUIMERLQ", equipe: "RUSH GAMING" },
         { jogador: "GUS", equipe: "INTZ" },
@@ -657,7 +657,7 @@ const db = {
         { jogador: "MitinX", equipe: "RUSH GAMING" },
         { jogador: "MitoMvp", equipe: "ALPHA7" },
         { jogador: "Motovea", equipe: "TEAM SOLID" },
-        { jogador: "Mts007", equipe: "VASCO ESPORTS" },
+        { jogador: "Mts007", equipe: "VASCO ESPORTS", isEx: true },
         { jogador: "NEYawp", equipe: "ALPHA7" },
         { jogador: "NICKZ", equipe: "LOUD SNICKERS" },
         { jogador: "Naandox", equipe: "RISE GAMING" },
@@ -670,11 +670,11 @@ const db = {
         { jogador: "Raone7", equipe: "LOS" },
         { jogador: "Razure", equipe: "INFLUENCE RAGE" },
         { jogador: "Redxzzz", equipe: "AXS FUSION" },
-        { jogador: "Rick9z", equipe: "ANGELS OUTPLAY" },
+        { jogador: "Rick9z", equipe: "ANGELS OUTPLAY", isEx: true },
         { jogador: "Rigby245", equipe: "LOS" },
         { jogador: "Rojão", equipe: "VASCO ESPORTS" },
         { jogador: "SEU PAI", equipe: "ANGELS OUTPLAY" },
-        { jogador: "SEU TIO", equipe: "ANGELS OUTPLAY" },
+        { jogador: "SEU TIO", equipe: "ANGELS OUTPLAY", isEx: true },
         { jogador: "SOARES", equipe: "AXS FUSION" },
         { jogador: "Sam7", equipe: "ALPHA7" },
         { jogador: "Shotzzrx", equipe: "VIRTUS PRO" },
@@ -1446,6 +1446,66 @@ function navigate(pageId) {
     }
 }
 
+function createPlayerCardHTML(p, scale = 1) {
+    let ovr = calculateOverall(p);
+    let role = playerRoles[p.jogador] || "RUSH";
+    let photo = playerPhotos[p.jogador] || "silhueta.png";
+    let teamLogo = logos[p.equipe] || "";
+    let danoK = (p.dano / 1000).toFixed(0) + "K";
+    
+    let captainBadge = (typeof playerCaptains !== 'undefined' && playerCaptains[p.jogador]) ? 
+        `<img src="cpt.png" style="position: absolute; top: 20px; right: 15px; z-index: 5; width: 35px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">` : '';
+
+    let accentColor = "#cd7f32"; 
+    if (ovr >= 91) accentColor = "#d4af37";
+    else if (ovr >= 86) accentColor = "#c5a028";
+    else if (ovr >= 81) accentColor = "#e5e5e5";
+    else if (ovr >= 75) accentColor = "#a3a3a3";
+
+    let glow = ovr >= 91 ? `box-shadow: 0 0 40px ${accentColor}66;` : '';
+    
+    // Etiqueta de Ex-Jogador
+    let exBadge = p.isEx ? `<div style="position: absolute; top: 18px; left: -35px; background: #f44336; color: #fff; font-size: 0.7em; font-weight: bold; padding: 5px 35px; transform: rotate(-45deg); z-index: 10; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.5);">Inativo</div>` : '';
+
+    let marginStyle = scale !== 1 ? `transform: scale(${scale}); margin: -15px;` : `margin: 0 auto;`;
+
+    return `
+        <div onclick="openPlayerProfile('${p.jogador}')" style="cursor:pointer; width: 280px; height: 420px; background: #000; border: 3px solid ${accentColor}; border-radius: 15px; position: relative; overflow: hidden; font-family: sans-serif; ${glow} ${marginStyle}">
+            <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #222, #000); opacity: 0.9;"></div>
+            
+            ${exBadge}
+            ${captainBadge}
+
+            <div style="position: absolute; top: 40px; left: 25px; z-index: 4; text-align: center; color: ${accentColor};">
+                <div style="font-size: 58px; font-weight: 900; line-height: 0.8; letter-spacing: -2px;">${ovr}</div>
+                <div style="font-size: 22px; font-weight: bold; margin-top: 5px; letter-spacing: 1px;">${role}</div>
+                <div style="margin: 15px auto; width: 40px; height: 2px; background: ${accentColor}; opacity: 0.6;"></div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" style="width: 35px; border-radius: 2px; display: block; margin: 8px auto;">
+                <img src="${teamLogo}" style="width: 50px; height: 50px; object-fit: contain; display: block; margin: 10px auto;">
+            </div>
+
+            <img src="${photo}" style="position: absolute; top: 20px; right: -30px; height: 260px; z-index: 2; filter: drop-shadow(5px 5px 15px #000); -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%); mask-image: linear-gradient(to bottom, black 60%, transparent 100%);">
+
+            <div style="position: absolute; bottom: 0; width: 100%; height: 180px; background: linear-gradient(transparent, #000 35%); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 12px;">
+                
+                <div style="width: 100%; text-align: center; margin-bottom: 8px;">
+                    <div style="margin: 0 auto; width: 85%; height: 1px; background: linear-gradient(90deg, transparent, ${accentColor}, transparent);"></div>
+                    <div style="color: #fff; font-size: 24px; font-weight: 900; text-transform: uppercase; padding: 6px 0; text-shadow: 2px 2px 4px #000;">
+                        ${p.jogador}
+                    </div>
+                    <div style="margin: 0 auto; width: 85%; height: 1px; background: linear-gradient(90deg, transparent, ${accentColor}, transparent);"></div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 2px; color: #fff; width: 100%; align-items: center; text-transform: uppercase;">
+                    <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;"><span style="font-weight: 900; color: ${accentColor}; font-size: 18px; margin-right: 5px;">${p.abates}</span> ABATES</div>
+                    <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;"><span style="font-weight: 900; color: ${accentColor}; font-size: 18px; margin-right: 5px;">${p.assists}</span> ASSISTÊNCIAS</div>
+                    <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;"><span style="font-weight: 900; color: ${accentColor}; font-size: 18px; margin-right: 5px;">${danoK}</span> DANO</div>
+                    <div style="font-size: 14px; font-weight: bold; letter-spacing: 1px;"><span style="font-weight: 900; color: ${accentColor}; font-size: 18px; margin-right: 5px;">${p.quedas}</span> QUEDAS</div>
+                </div>
+            </div>
+        </div>`;
+}
+
 function autoCalculateTotals() {
     // 1. Zera e Calcula totais dos JOGADORES
     db.players.forEach(p => {
@@ -1937,48 +1997,33 @@ function renderTeamProfileStats() {
 
     let players = Object.values(agg);
     let cardsContainer = document.getElementById('tp-players-cards-container');
-    
     if (cardsContainer) {
-        cardsContainer.innerHTML = players.sort((a,b) => b.abates - a.abates).map(player => {
-            let ovr = calculateOverall(player);
-            let role = playerRoles[player.jogador] || "RUSH";
-            let photo = playerPhotos[player.jogador] || "silhueta.png";
-            let teamLogo = logos[player.equipe] || "";
-            let danoK = (player.dano / 1000).toFixed(0) + "K";
-            
-            // Lógica da Braçadeira de Capitão
-            let captainBadge = (typeof playerCaptains !== 'undefined' && playerCaptains[player.jogador]) ? 
-                `<img src="cpt.png" style="position: absolute; top: 20px; right: 15px; z-index: 5; width: 35px; filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));">` : '';
+        // Checa no banco de dados quem é ex-jogador e mescla a informação
+        players = players.map(pAgg => {
+            let dbP = db.players.find(x => x.jogador === pAgg.jogador);
+            pAgg.isEx = dbP ? (dbP.isEx || false) : false;
+            return pAgg;
+        });
 
-            let accentColor = "#cd7f32"; 
-            if (ovr >= 91) accentColor = "#d4af37";
-            else if (ovr >= 86) accentColor = "#c5a028";
-            else if (ovr >= 81) accentColor = "#e5e5e5";
-            else if (ovr >= 75) accentColor = "#a3a3a3";
+        // Separa os jogadores ativos dos inativos
+        let ativos = players.filter(p => !p.isEx).sort((a,b) => b.abates - a.abates);
+        let inativos = players.filter(p => p.isEx).sort((a,b) => b.abates - a.abates);
 
-            return `
-                <div onclick="openPlayerProfile('${player.jogador}')" style="cursor:pointer; width: 280px; height: 420px; background: #000; border: 3px solid ${accentColor}; border-radius: 15px; position: relative; overflow: hidden; font-family: sans-serif; transform: scale(0.9); margin: -15px;">
-                    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #222, #000); opacity: 0.9;"></div>
-                    
-                    ${captainBadge}
-
-                    <div style="position: absolute; top: 40px; left: 25px; z-index: 4; text-align: center; color: ${accentColor};">
-                        <div style="font-size: 58px; font-weight: 900; line-height: 0.8; letter-spacing: -2px;">${ovr}</div>
-                        <div style="font-size: 22px; font-weight: bold; margin-top: 5px; letter-spacing: 1px;">${role}</div>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" style="width: 35px; border-radius: 2px; display: block; margin: 15px auto 8px auto;">
-                        <img src="${teamLogo}" style="width: 50px; height: 50px; object-fit: contain; display: block; margin: 10px auto;">
-                    </div>
-                    <img src="${photo}" style="position: absolute; top: 20px; right: -30px; height: 260px; z-index: 2; filter: drop-shadow(5px 5px 15px #000); -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%); mask-image: linear-gradient(to bottom, black 70%, transparent 100%);">
-                    <div style="position: absolute; bottom: 0; width: 100%; height: 165px; background: linear-gradient(transparent, #000 40%); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 20px;">
-                        <div style="color: #fff; font-size: 26px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; text-shadow: 2px 2px 4px #000;">${player.jogador}</div>
-                        <div style="display: flex; flex-direction: column; gap: 4px; color: #fff; width: 100%; align-items: center; text-transform: uppercase;">
-                            <div style="font-size: 17px; font-weight: bold;"><span style="font-weight: 900; color: ${accentColor}; font-size: 21px; margin-right: 5px;">${player.abates}</span> ABATES</div>
-                            <div style="font-size: 17px; font-weight: bold;"><span style="font-weight: 900; color: ${accentColor}; font-size: 21px; margin-right: 5px;">${player.assists}</span> ASSISTÊNCIAS</div>
-                            <div style="font-size: 17px; font-weight: bold;"><span style="font-weight: 900; color: ${accentColor}; font-size: 21px; margin-right: 5px;">${danoK}</span> DANO</div>
-                        </div>
-                    </div>
-                </div>`;
-        }).join('');
+        // Renderiza os ativos
+        let html = ativos.map(player => createPlayerCardHTML(player, 0.9)).join('');
+        
+        // Se houver ex-jogadores, cria o botão e a aba oculta
+        if (inativos.length > 0) {
+            html += `
+            <div style="width: 100%; text-align: center; margin-top: 15px;">
+                <button class="btn-action" onclick="let c = document.getElementById('ex-players-div'); if(c.style.display==='none'){c.style.display='flex'; this.innerText='Ocultar Ex-Jogadores';}else{c.style.display='none'; this.innerText='Ver Ex-Jogadores';}" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 0.85em; padding: 8px 15px;">Ver Ex-Jogadores</button>
+            </div>
+            <div id="ex-players-div" style="display: none; width: 100%; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; padding-top: 25px; border-top: 1px dashed #333;">
+                ${inativos.map(player => createPlayerCardHTML(player, 0.9)).join('')}
+            </div>`;
+        }
+        
+        cardsContainer.innerHTML = html;
     }
 
     // --- 3. RENDERIZAÇÃO DO PAINEL DE DESEMPENHO ---
@@ -2333,67 +2378,18 @@ function openPlayerProfile(playerName) {
     // --- 3. RENDERIZAÇÃO DO HTML DA CARTINHA ---
     let cardContainer = document.getElementById('player-overall-card'); 
     if (cardContainer) {
-        cardContainer.innerHTML = `
-            <div style="display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 20px; flex-wrap: wrap; margin: 20px 0; border: 1px solid rgba(255,255,255,0.05); justify-content: center;">
-                
-                <div style="width: 280px; height: 420px; background: #000; border: 3px solid ${accentColor}; border-radius: 15px; position: relative; overflow: hidden; font-family: sans-serif; ${glow}">
-                    
-                    <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #222, #000); opacity: 0.9;"></div>
-
-                    ${captainBadge}
-
-                    <div style="position: absolute; top: 40px; left: 25px; z-index: 4; text-align: center; color: ${accentColor};">
-                        <div style="font-size: 58px; font-weight: 900; line-height: 0.8; letter-spacing: -2px;">${ovr}</div>
-                        <div style="font-size: 22px; font-weight: bold; margin-top: 5px; letter-spacing: 1px;">${role}</div>
-                        <div style="margin: 15px auto; width: 40px; height: 2px; background: ${accentColor}; opacity: 0.6;"></div>
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" style="width: 35px; border-radius: 2px; display: block; margin: 8px auto;">
-                        <img src="${teamLogo}" style="width: 50px; height: 50px; object-fit: contain; display: block; margin: 10px auto;">
-                    </div>
-
-                    <img src="${photo}" style="position: absolute; top: 20px; right: -30px; height: 260px; z-index: 2; filter: drop-shadow(5px 5px 15px #000); 
-                        -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-                        mask-image: linear-gradient(to bottom, black 60%, transparent 100%);">
-
-                    <div style="position: absolute; bottom: 0; width: 100%; height: 165px; background: linear-gradient(transparent, #000 40%); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 20px;">
-                        
-                        <div style="width: 100%; text-align: center; margin-bottom: 10px;">
-                            <div style="margin: 0 auto; width: 85%; height: 1px; background: linear-gradient(90deg, transparent, ${accentColor}, transparent);"></div>
-                            <div style="color: #fff; font-size: 26px; font-weight: 900; text-transform: uppercase; padding: 8px 0; text-shadow: 2px 2px 4px #000;">
-                                ${p.jogador}
-                            </div>
-                            <div style="margin: 0 auto; width: 85%; height: 1px; background: linear-gradient(90deg, transparent, ${accentColor}, transparent);"></div>
-                        </div>
-
-                        <div style="display: flex; flex-direction: column; gap: 4px; color: #fff; width: 100%; align-items: center; text-transform: uppercase;">
-                            <div style="font-size: 17px; font-weight: bold; letter-spacing: 1px;">
-                                <span style="font-weight: 900; color: ${accentColor}; font-size: 21px; margin-right: 5px;">${p.abates}</span> ABATES
-                            </div>
-                            <div style="font-size: 17px; font-weight: bold; letter-spacing: 1px;">
-                                <span style="font-weight: 900; color: ${accentColor}; font-size: 21px; margin-right: 5px;">${p.assists}</span> ASSISTÊNCIAS
-                            </div>
-                            <div style="font-size: 17px; font-weight: bold; letter-spacing: 1px;">
-                                <span style="font-weight: 900; color: ${accentColor}; font-size: 21px; margin-right: 5px;">${danoK}</span> DANO TOTAL
-                            </div>
-                        </div>
-                    </div>
+        // Envolve a carta num container flex para alinhar igual estava antes
+        cardContainer.innerHTML = `<div style="display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 20px; flex-wrap: wrap; margin: 20px 0; border: 1px solid rgba(255,255,255,0.05); justify-content: center;">
+            ${createPlayerCardHTML(p, 1)}
+            <div style="flex: 1; min-width: 280px;">
+                <div style="color: #888; font-size: 0.85em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;">Classificação Pro 2026</div>
+                <div style="font-size: 2em; margin-bottom: 10px;">${stars}</div>
+                <div style="background: ${accentColor}22; color: ${accentColor}; border: 1px solid ${accentColor}44; padding: 12px 25px; font-weight: 900; display: inline-block; font-size: 1.3em; border-radius: 5px; text-transform: uppercase;">${category}</div>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <p style="color: #aaa; font-size: 0.95em; line-height: 1.6; margin: 0;">Performance calculada em tempo real.<br>Especialidade: <strong style="color:#fff">${playerRoles[p.jogador] || "RUSH"}</strong></p>
                 </div>
-
-                <div style="flex: 1; min-width: 280px;">
-                    <div style="color: #888; font-size: 0.85em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;">Classificação Pro 2026</div>
-                    <div style="font-size: 2em; margin-bottom: 10px;">${stars}</div>
-                    <div style="background: ${accentColor}22; color: ${accentColor}; border: 1px solid ${accentColor}44; padding: 12px 25px; font-weight: 900; display: inline-block; font-size: 1.3em; border-radius: 5px; text-transform: uppercase;">
-                        ${category}
-                    </div>
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
-                        <p style="color: #aaa; font-size: 0.95em; line-height: 1.6; margin: 0;">
-                            Performance calculada em tempo real.<br>
-                            Especialidade: <strong style="color:#fff">${role}</strong>
-                        </p>
-                    </div>
-                </div>
-
             </div>
-        `;
+        </div>`;
     }
 
     navigate('player-profile');
@@ -2539,39 +2535,8 @@ function renderComparePlayers() {
         p2 = db.players.find(x => x.jogador === document.getElementById('comp-p2').value);
     if(!p1 || !p2) return;
 
-    const getCardHtml = (p) => {
-        let ovr = calculateOverall(p);
-        let role = playerRoles[p.jogador] || "RUSH";
-        let photo = playerPhotos[p.jogador] || "silhueta.png";
-        let teamLogo = logos[p.equipe] || "";
-        let danoK = (p.dano / 1000).toFixed(0) + "K";
-        
-        let accentColor = "#cd7f32"; 
-        if (ovr >= 91) accentColor = "#d4af37";
-        else if (ovr >= 86) accentColor = "#c5a028";
-        else if (ovr >= 81) accentColor = "#e5e5e5";
-        else if (ovr >= 75) accentColor = "#a3a3a3";
-
-        return `
-            <div onclick="openPlayerProfile('${p.jogador}')" style="cursor:pointer; width: 280px; height: 420px; background: #000; border: 3px solid ${accentColor}; border-radius: 15px; position: relative; overflow: hidden; font-family: sans-serif; margin: 0 auto;">
-                <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #222, #000); opacity: 0.9;"></div>
-                <div style="position: absolute; top: 40px; left: 25px; z-index: 4; text-align: center; color: ${accentColor};">
-                    <div style="font-size: 58px; font-weight: 900; line-height: 0.8; letter-spacing: -2px;">${ovr}</div>
-                    <div style="font-size: 22px; font-weight: bold; margin-top: 5px; letter-spacing: 1px;">${role}</div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg" style="width: 35px; border-radius: 2px; display: block; margin: 15px auto 8px auto;">
-                    <img src="${teamLogo}" style="width: 50px; height: 50px; object-fit: contain; display: block; margin: 0 auto;">
-                </div>
-                <img src="${photo}" style="position: absolute; top: 20px; right: -30px; height: 260px; z-index: 2; filter: drop-shadow(5px 5px 15px #000); -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%); mask-image: linear-gradient(to bottom, black 70%, transparent 100%);">
-                <div style="position: absolute; bottom: 0; width: 100%; height: 165px; background: linear-gradient(transparent, #000 40%); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 20px;">
-                    <div style="color: #fff; font-size: 26px; font-weight: 900; text-transform: uppercase; margin-bottom: 10px; text-shadow: 2px 2px 4px #000;">${p.jogador}</div>
-                    <div style="display: flex; flex-direction: column; gap: 4px; color: #fff; width: 100%; align-items: center; text-transform: uppercase;">
-                        <div style="font-size: 15px;"><span style="font-weight: 900; color: ${accentColor}; font-size: 19px;">${p.abates}</span> ABATES</div>
-                        <div style="font-size: 15px;"><span style="font-weight: 900; color: ${accentColor}; font-size: 19px;">${p.assists}</span> ASSISTÊNCIAS</div>
-                        <div style="font-size: 15px;"><span style="font-weight: 900; color: ${accentColor}; font-size: 19px;">${danoK}</span> DANO</div>
-                    </div>
-                </div>
-            </div>`;
-    };
+    // Vê como agora ela chama a função mestra e não tem mais o resto do código da carta aqui?
+    const getCardHtml = (p) => createPlayerCardHTML(p, 1);
 
     const buildRow = (label, v1, v2, r1, r2, formatFn = v=>v) => `
         <div class="stat-row">
@@ -2580,29 +2545,29 @@ function renderComparePlayers() {
             <div class="stat-val ${v2>v1?'winner':(v2<v1?'loser':'')}">${formatFn(v2)} <span class="rank-badge" style="font-size:0.7em">#${r2}</span></div>
         </div>`;
 
-document.getElementById('compare-players-result').innerHTML = `
-    <div class="compare-box" style="background:transparent; border:none; padding:0;">
-        ${getCardHtml(p1)}
-    </div>
-    <div class="compare-box" style="background:transparent; border:none; padding:0;">
-        ${getCardHtml(p2)}
-    </div>
-    <div style="grid-column: span 2; background:var(--panel-bg); border-radius:8px; padding:15px; border:1px solid var(--border);">
-        ${buildRow('Abates', p1.abates, p2.abates, p1.rankKills, p2.rankKills)}
-        ${buildRow('Dano Total', p1.dano, p2.dano, p1.rankDmg, p2.rankDmg)}
-        ${buildRow('Assistências', p1.assists, p2.assists, p1.rankAssists, p2.rankAssists)}
-        ${buildRow('MVPs', p1.mvp, p2.mvp, p1.rankMvp, p2.rankMvp)}
-        
-        <div class="stat-row">
-            <div class="stat-val ${(p1.abates/p1.quedas) > (p2.abates/p2.quedas) ? 'winner' : 'loser'}">
-                ${(p1.abates/p1.quedas).toFixed(2)}
-            </div>
-            <div class="stat-label">Kills/Queda</div>
-            <div class="stat-val ${(p2.abates/p2.quedas) > (p1.abates/p1.quedas) ? 'winner' : 'loser'}">
-                ${(p2.abates/p2.quedas).toFixed(2)}
-            </div>
+    document.getElementById('compare-players-result').innerHTML = `
+        <div class="compare-box" style="background:transparent; border:none; padding:0;">
+            ${getCardHtml(p1)}
         </div>
-    </div>`;
+        <div class="compare-box" style="background:transparent; border:none; padding:0;">
+            ${getCardHtml(p2)}
+        </div>
+        <div style="grid-column: span 2; background:var(--panel-bg); border-radius:8px; padding:15px; border:1px solid var(--border);">
+            ${buildRow('Abates', p1.abates, p2.abates, p1.rankKills, p2.rankKills)}
+            ${buildRow('Dano Total', p1.dano, p2.dano, p1.rankDmg, p2.rankDmg)}
+            ${buildRow('Assistências', p1.assists, p2.assists, p1.rankAssists, p2.rankAssists)}
+            ${buildRow('MVPs', p1.mvp, p2.mvp, p1.rankMvp, p2.rankMvp)}
+            
+            <div class="stat-row">
+                <div class="stat-val ${(p1.abates/p1.quedas) > (p2.abates/p2.quedas) ? 'winner' : 'loser'}">
+                    ${(p1.abates/p1.quedas).toFixed(2)}
+                </div>
+                <div class="stat-label">Kills/Queda</div>
+                <div class="stat-val ${(p2.abates/p2.quedas) > (p1.abates/p1.quedas) ? 'winner' : 'loser'}">
+                    ${(p2.abates/p2.quedas).toFixed(2)}
+                </div>
+            </div>
+        </div>`;
 }
 </script>
 </body>
