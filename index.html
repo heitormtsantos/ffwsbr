@@ -471,6 +471,7 @@ let selectedPlayerDays = [];
 let selectedTpDays = [];
 let currentTeamView = null;
 let currentOppGroup = null;
+let currentTeamNextMatch = null
 const TOTAL_DIAS = 10;
 
 window.onload = () => {
@@ -511,6 +512,7 @@ function parseMatchDate(dateStr) {
 function updateCountdown() {
     const now = new Date();
     
+    // 1. Cronômetro Geral do Torneio (Aba Cronograma)
     const nextMatch = agenda.find(m => {
         const mDate = parseMatchDate(m.data);
         return mDate.getTime() + (6 * 60 * 60 * 1000) > now.getTime();
@@ -521,45 +523,50 @@ function updateCountdown() {
     const liveStatus = document.getElementById('live-status');
     const groupsContainer = document.getElementById('next-match-groups');
 
-    if (!nextMatch) {
-        if(display) display.innerText = "Fim da Temporada";
-        return;
+    if (nextMatch) {
+        if(groupsContainer) {
+            const groupsHtml = nextMatch.grupos.map(g => {
+                const teamsInGroup = db.teams.filter(t => t.grupo === g);
+                const logosHtml = teamsInGroup.map(t => `<img src="${logos[t.equipe] || ''}" class="mini-logo" style="width:22px; height:22px; margin: 0 2px;">`).join('');
+                return `<div class="group-logos"><span class="group-label">GP ${g}</span>${logosHtml}</div>`;
+            }).join('<span style="font-weight:bold; color:#444;">VS</span>');
+            groupsContainer.innerHTML = groupsHtml;
+        }
+
+        const targetDate = parseMatchDate(nextMatch.data);
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            if(display) display.innerHTML = "<span style='color: #ff4444;'>AO VIVO</span>";
+            if(liveIcon) { liveIcon.style.filter = "none"; liveIcon.style.opacity = "1"; liveIcon.style.pointerEvents = "auto"; }
+            if(liveStatus) { liveStatus.innerText = "Online"; liveStatus.style.color = "#ff4444"; }
+        } else {
+            const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diff / (1000 * 60)) % 60);
+            const s = Math.floor((diff / 1000) % 60);
+            if(display) display.innerText = `${d > 0 ? d + 'd ' : ''}${h}h ${m}m ${s}s`;
+            if(liveIcon) { liveIcon.style.filter = "grayscale(1)"; liveIcon.style.opacity = "0.3"; liveIcon.style.pointerEvents = "none"; }
+            if(liveStatus) { liveStatus.innerText = "Offline"; liveStatus.style.color = "var(--text-muted)"; }
+        }
     }
 
-    // Atualiza aba Cronograma
-    if(groupsContainer) {
-        const groupsHtml = nextMatch.grupos.map(g => {
-            const teamsInGroup = db.teams.filter(t => t.grupo === g);
-            const logosHtml = teamsInGroup.map(t => `<img src="${logos[t.equipe] || ''}" class="mini-logo" style="width:22px; height:22px; margin: 0 2px;">`).join('');
-            return `<div class="group-logos"><span class="group-label">GP ${g}</span>${logosHtml}</div>`;
-        }).join('<span style="font-weight:bold; color:#444;">VS</span>');
-        groupsContainer.innerHTML = groupsHtml;
-    }
-
-    const targetDate = parseMatchDate(nextMatch.data);
-    const diff = targetDate - now;
-    let timerText = "";
-
-    if (diff <= 0) {
-        timerText = "AO VIVO";
-        if(display) display.innerHTML = "<span style='color: #ff4444;'>AO VIVO</span>";
-        if(liveIcon) { liveIcon.style.filter = "none"; liveIcon.style.opacity = "1"; liveIcon.style.pointerEvents = "auto"; }
-        if(liveStatus) { liveStatus.innerText = "Online"; liveStatus.style.color = "#ff4444"; }
-    } else {
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        const m = Math.floor((diff / (1000 * 60)) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-        timerText = `${d > 0 ? d + 'd ' : ''}${h}h ${m}m ${s}s`;
-        
-        if(display) display.innerText = timerText;
-        if(liveIcon) { liveIcon.style.filter = "grayscale(1)"; liveIcon.style.opacity = "0.3"; liveIcon.style.pointerEvents = "none"; }
-        if(liveStatus) { liveStatus.innerText = "Offline"; liveStatus.style.color = "var(--text-muted)"; }
-    }
-
-    // Sincroniza com o card do perfil do time se ele existir
+    // 2. Cronômetro Específico do Perfil (Independente do Torneio)
     const tpDisplay = document.getElementById('tp-countdown-display');
-    if (tpDisplay) { tpDisplay.innerText = timerText; }
+    if (tpDisplay && currentTeamNextMatch) {
+        const targetDateTp = parseMatchDate(currentTeamNextMatch.data);
+        const diffTp = targetDateTp - now;
+
+        if (diffTp <= 0) {
+            tpDisplay.innerHTML = "<span style='color: #ff4444;'>AO VIVO</span>";
+        } else {
+            const d = Math.floor(diffTp / (1000 * 60 * 60 * 24));
+            const h = Math.floor((diffTp / (1000 * 60 * 60)) % 24);
+            const m = Math.floor((diffTp / (1000 * 60)) % 60);
+            const s = Math.floor((diffTp / 1000) % 60);
+            tpDisplay.innerText = `${d > 0 ? d + 'd ' : ''}${h}h ${m}m ${s}s`;
+        }
+    }
 }
 
 function calculatePlayerRanks() {
@@ -791,26 +798,27 @@ function openTeamProfile(teamName) {
     let t = db.teams.find(x => x.equipe === teamName);
     if(!t) return;
 
-    // Preenchimento básico do perfil
+    // Dados básicos do perfil
     document.getElementById('tp-name').innerText = t.equipe;
     document.getElementById('tp-group').innerText = `Grupo ${t.grupo}`;
     document.getElementById('tp-pos').innerText = `${t.posGeral}º`;
     let logoEl = document.getElementById('tp-logo');
     if (logos[t.equipe]) { logoEl.src = logos[t.equipe]; logoEl.style.display = 'block'; } else logoEl.style.display = 'none';
 
-    // --- Lógica do Cronômetro e Confronto no Perfil do Time ---
+    // --- LÓGICA CORRIGIDA: Busca o próximo jogo DESTA EQUIPE específica ---
     const now = new Date();
-    const nextMatch = agenda.find(m => {
+    currentTeamNextMatch = agenda.find(m => {
         const mDate = parseMatchDate(m.data);
-        return mDate.getTime() + (6 * 60 * 60 * 1000) > now.getTime();
+        // Verifica se o grupo do time está na partida E se a partida ainda não acabou (margem de 6h)
+        return m.grupos.includes(t.grupo) && (mDate.getTime() + (6 * 60 * 60 * 1000) > now.getTime());
     });
 
     const tpContainer = document.getElementById('tp-next-match-container');
     if (tpContainer) {
-        if (nextMatch && nextMatch.grupos.includes(t.grupo)) {
-            // Gera o HTML dos grupos adversários (Ex: B: [logos] C: [logos])
-            const opponentsHtml = nextMatch.grupos
-                .filter(g => g !== t.grupo) // Remove o grupo do time atual
+        if (currentTeamNextMatch) {
+            // Gera os logos dos oponentes específicos deste jogo
+            const opponentsHtml = currentTeamNextMatch.grupos
+                .filter(g => g !== t.grupo)
                 .map(g => {
                     const teamsInGroup = db.teams.filter(tm => tm.grupo === g);
                     const logosHtml = teamsInGroup.map(tm => 
@@ -825,9 +833,9 @@ function openTeamProfile(teamName) {
             tpContainer.innerHTML = `
                 <div style="background: rgba(255, 170, 0, 0.05); border: 1px solid rgba(255,170,0,0.3); padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                     <div>
-                        <div style="color: var(--accent); font-size: 0.75em; font-weight: bold; text-transform: uppercase; letter-spacing:1px; margin-bottom:5px;">Próximo Confronto</div>
+                        <div style="color: var(--accent); font-size: 0.75em; font-weight: bold; text-transform: uppercase; letter-spacing:1px; margin-bottom:5px;">Próximo Jogo da Equipe</div>
                         <div id="tp-countdown-display" style="font-size: 1.2em; font-weight: bold; color:#fff;">Calculando...</div>
-                        <div style="font-size: 0.8em; color: var(--text-muted); margin-top:2px;">${nextMatch.data} às 13h</div>
+                        <div style="font-size: 0.8em; color: var(--text-muted); margin-top:2px;">${currentTeamNextMatch.data} às 13h</div>
                     </div>
                     <div style="background: rgba(0,0,0,0.2); padding: 10px 15px; border-radius: 8px; border: 1px solid #333;">
                         <div style="font-size: 0.7em; color: #888; text-transform: uppercase; font-weight: bold; margin-bottom: 3px;">Enfrenta:</div>
@@ -839,7 +847,7 @@ function openTeamProfile(teamName) {
         }
     }
 
-    // Configuração de filtros e estatísticas
+    // Filtros e tabelas
     let oppSelect = document.getElementById('tp-opp-group');
     oppSelect.innerHTML = '';
     ['A', 'B', 'C', 'D'].forEach(g => { if (g !== t.grupo) oppSelect.innerHTML += `<option value="${g}">Grupo ${g}</option>`; });
@@ -849,8 +857,7 @@ function openTeamProfile(teamName) {
     renderTeamConfrontation();
     navigate('team-profile');
     
-    // Atualiza o tempo imediatamente
-    updateCountdown();
+    updateCountdown(); // Atualiza os tempos imediatamente
 }
 
 function renderTeamProfileStats() {
