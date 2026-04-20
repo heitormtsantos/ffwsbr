@@ -270,7 +270,10 @@
                 <div style="font-size: 1.2em; color: var(--text-muted);">Quedas Jogadas: <strong id="pp-quedas" style="color:#fff;">0</strong></div>
             </div>
         </div>
+ <h2 id="pp-name" style="color:#66b3ff"></h2>
+<p id="pp-team" class="clickable" onclick="..." style="color:#aaa"></p>
 
+<div id="player-overall-card"></div>
         <div class="grid-cards">
             <div class="card">
                 <div class="card-top-border"></div><h3>Abates Totais</h3><div class="value" id="pp-tot-kills">0</div>
@@ -558,6 +561,52 @@ function updateCountdown() {
             tpDisplay.innerText = `${d > 0 ? d + 'd ' : ''}${h}h ${m}m ${s}s`;
         }
     }
+}
+
+function calculateOverall(p, best) {
+    let q = p.quedas || 1;
+
+    // MÉDIAS
+    let avgK = p.abates / q;
+    let avgD = p.dano / q;
+    let avgA = p.assists / q;
+    let avgM = p.mvp / q;
+
+    // MELHOR JOGADOR (base de escala)
+    let bestK = best.abates / best.quedas;
+    let bestD = best.dano / best.quedas;
+    let bestA = best.assists / best.quedas;
+    let bestM = best.mvp / best.quedas;
+
+    // NORMALIZAÇÃO (0–100)
+    let scoreK = (avgK / bestK) * 100;
+    let scoreD = (avgD / bestD) * 100;
+    let scoreA = (avgA / bestA) * 100;
+    let scoreM = (avgM / bestM) * 100;
+
+    // PESOS
+    let raw =
+        (scoreK * 4) +
+        (scoreD * 3) +
+        (scoreM * 3) +
+        (scoreA * 2);
+
+    let maxWeight = 4 + 3 + 3 + 2; // 12
+
+    let normalized = raw / maxWeight; // volta pra escala 0–100
+
+    // ESCALA FINAL (65–93)
+    let final = 65 + (normalized / 100) * (93 - 65);
+
+    return Math.round(final);
+}
+
+function getOverallColor(ovr) {
+    if (ovr >= 91) return '#ffd700'; // Ouro Lendário (MT7, Yago)
+    if (ovr >= 86) return '#ffea00'; // Ouro Elite (Rigby)
+    if (ovr >= 81) return '#e5e5e5'; // Prata Brilhante (JNmvp)
+    if (ovr >= 75) return '#c0c0c0'; // Prata
+    return '#cd7f32';               // Bronze
 }
 
 function calculatePlayerRanks() {
@@ -1174,29 +1223,122 @@ function closeModal(e) {
     }
 }
 
-// ============== JOGADORES, MAPAS, ETC ==============
+// --- SISTEMA DE OVERALL (MVP COMO BÔNUS EXTRA) ---
+function calculateOverall(p) {
+    let q = p.quedas || 1;
+    let avgK = p.abates / q;
+    let avgD = p.dano / q;
+    let avgA = p.assists / q;
+    let avgM = (p.mvp || 0) / q; // Média de MVP por partida
+
+    // 1. CÁLCULO DA NOTA BASE (Peso: Abate 50%, Dano 35%, Assist 15%)
+    // Tetos baseados no MT7 para ele ser a referência do topo
+    let scoreK = Math.min((avgK / 2.7) * 100, 100);
+    let scoreD = Math.min((avgD / 1850) * 100, 100);
+    let scoreA = Math.min((avgA / 1.3) * 100, 100);
+
+    let baseRaw = (scoreK * 0.50) + (scoreD * 0.35) + (scoreA * 0.15);
+
+    // 2. MAPEAMENTO PARA O RANGE (65 a 91 - deixamos margem para o bônus)
+    // Aqui o máximo sem bônus de MVP seria 91
+    let finalOverall = 65 + (baseRaw / 100) * (91 - 65);
+    
+    // 3. BÔNUS EXTRA DE MVP
+    // Se o jogador tem uma taxa alta de MVP, ele ganha pontos na nota final
+    let bonusMVP = 0;
+    if (avgM >= 0.13) { 
+        bonusMVP = 2; // Elite de MVPs (estilo MT7) ganha +2
+    } else if (avgM >= 0.08) {
+        bonusMVP = 1; // Jogadores que ganham MVPs com frequência ganham +1
+    }
+
+    let result = Math.round(finalOverall + bonusMVP);
+
+    // 4. TRAVAS DE SEGURANÇA (Limite máximo de 93)
+    if (result > 93) result = 93;
+    if (result < 65) result = 65;
+
+    return result;
+}
+
+function getOverallColor(ovr) {
+    if (ovr >= 90) return '#ffd700'; // Ouro Lendário
+    if (ovr >= 85) return '#ffea00'; // Ouro Elite
+    if (ovr >= 81) return '#e5e5e5'; // Prata Brilhante
+    if (ovr >= 75) return '#c0c0c0'; // Prata
+    return '#cd7f32';               // Bronze
+}
+
+// --- FUNÇÃO ORIGINAL COM O OVERALL ADICIONADO ---
 function openPlayerProfile(playerName) {
     let p = db.players.find(x => x.jogador === playerName);
     if(!p) return;
+
+    // --- SEU CÓDIGO ORIGINAL DE PREENCHIMENTO ---
     document.getElementById('pp-name').innerText = p.jogador;
     document.getElementById('pp-team').innerText = p.equipe;
     document.getElementById('pp-team').onclick = () => openTeamProfile(p.equipe);
     document.getElementById('pp-quedas').innerText = p.quedas;
     document.getElementById('pp-tot-kills').innerText = p.abates;
-    document.getElementById('pp-avg-kills').innerText = (p.abates / p.quedas).toFixed(2);
+    document.getElementById('pp-avg-kills').innerText = (p.abates / (p.quedas || 1)).toFixed(2);
     document.getElementById('pp-rank-kills').innerText = `#${p.rankKills}`;
+    
     let recorde = p.recorde || 0;
     let rankRecorde = [...db.players].sort((a,b) => (b.recorde||0) - (a.recorde||0)).findIndex(x => x.jogador === p.jogador) + 1;
     document.getElementById('pp-record').innerText = recorde;
     document.getElementById('pp-rank-record').innerText = `#${rankRecorde}`;
+    
     document.getElementById('pp-tot-dmg').innerText = p.dano;
-    document.getElementById('pp-avg-dmg').innerText = (p.dano / p.quedas).toFixed(2);
+    document.getElementById('pp-avg-dmg').innerText = (p.dano / (p.quedas || 1)).toFixed(2);
     document.getElementById('pp-rank-dmg').innerText = `#${p.rankDmg}`;
+    
     document.getElementById('pp-tot-assists').innerText = p.assists;
-    document.getElementById('pp-avg-assists').innerText = (p.assists / p.quedas).toFixed(2);
+    document.getElementById('pp-avg-assists').innerText = (p.assists / (p.quedas || 1)).toFixed(2);
     document.getElementById('pp-rank-assists').innerText = `#${p.rankAssists}`;
+    
     document.getElementById('pp-tot-mvps').innerText = p.mvp;
     document.getElementById('pp-rank-mvps').innerText = `#${p.rankMvp}`;
+
+    // --- LÓGICA DO OVERALL COM ESTRELAS ---
+    let ovr = calculateOverall(p);
+    let color = getOverallColor(ovr);
+    
+    let stars = "";
+let category = "";
+if (ovr >= 91) { stars = "⭐⭐⭐⭐⭐"; category = "LENDÁRIO"; }
+else if (ovr >= 86) { stars = "⭐⭐⭐⭐"; category = "ELITE"; }
+else if (ovr >= 81) { stars = "⭐⭐⭐"; category = "MUITO BOM"; }
+else if (ovr >= 75) { stars = "⭐⭐"; category = "PROFISSIONAL"; }
+else { stars = "⭐"; category = "SÉRIE A"; }
+
+    let glow = ovr >= 90 ? `box-shadow: 0 0 30px ${color}aa;` : (ovr >= 81 ? `box-shadow: 0 0 15px ${color}33;` : '');
+
+    let cardContainer = document.getElementById('player-overall-card'); 
+    if(cardContainer) {
+        cardContainer.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 20px; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); margin: 15px 0; flex-wrap: wrap;">
+                <div style="width: 90px; height: 125px; background: linear-gradient(135deg, ${color} 0%, #111 50%, #000 100%); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid ${color}; position: relative; ${glow}">
+                    <div style="font-size: 2.6em; font-weight: 900; color: #fff; line-height: 1; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">${ovr}</div>
+                    <div style="font-size: 0.75em; font-weight: bold; color: ${color}; text-transform: uppercase; letter-spacing: 2px;">OVR</div>
+                    <div style="position: absolute; bottom: 8px; font-size: 0.5em; color: rgba(255,255,255,0.4); font-weight: bold; border-top: 1px solid rgba(255,255,255,0.1); width: 80%; text-align: center; padding-top: 4px;">FFWS 2026</div>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="color: #666; font-size: 0.75em; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Classificação Pro:</div>
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <div style="font-size: 1.2em;">${stars}</div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <span class="rank-badge" style="background: ${color}22; color: ${color}; border: 1px solid ${color}44; padding: 4px 12px; font-weight: 900; font-size: 0.9em;">
+                                ${category}
+                            </span>
+                            <span style="color: #888; font-size: 0.8em;">Baseado em médias por queda</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
     navigate('player-profile');
 }
 
