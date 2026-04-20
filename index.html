@@ -72,7 +72,7 @@
     .group-table-card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
     .group-table-card h3 { background: #242429; margin: 0; padding: 12px; text-align: center; color: var(--accent); font-size: 1.1em; border-bottom: 2px solid var(--accent); }
 
-/* Comparação - Layout Atualizado para Mobile */
+    /* Comparação - Layout Atualizado para Mobile */
     .compare-container { 
         display: grid; 
         grid-template-columns: 1fr 1fr; 
@@ -128,33 +128,6 @@
         .compare-box {
             padding: 15px 10px; /* Diminui o respiro interno da caixa */
         }
-/* Esconde o texto do time na tabela geral do mobile */
-        #table-teams-full .full-name-desktop, 
-        #table-teams-full .short-name-mobile { 
-            display: none !important; 
-        }
-
-#table-teams-full td:nth-child(2) {
-            text-align: center !important;
-            justify-content: center !important;
-            width: 60px; /* Largura fixa para não empurrar as outras colunas */
-        }
-        
-        /* Ajuste para as siglas não quebrarem linha */
-        .short-name-mobile {
-            white-space: nowrap;
-        }
-
-        /* Ajuste fino para o Ranking do Confronto (Modal) não encavalar */
-        #table-modal-ranking th, #table-modal-ranking td {
-            padding: 8px 2px !important;
-            font-size: 0.8em;
-        }
-/* Alinhamento padrão para PC */
-#table-teams-full td:nth-child(2) {
-    text-align: left !important;
-    justify-content: flex-start !important;
-}
     }
 
     /* Cronograma */
@@ -183,15 +156,16 @@
     .day-chip:hover { border-color: #66b3ff; }
     .day-chip.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
 
-/* O SEU ORIGINAL QUE VOCÊ JÁ TEM (MANTENHA) */
+    /* O SEU ORIGINAL QUE VOCÊ JÁ TEM (MANTENHA) */
     .player-profile-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
     .rank-badge { background-color: var(--accent); color: #000; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-left: 10px; vertical-align: middle; }
     .team-logo { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; margin-right: 8px; border-radius: 4px; }
     .team-cell { display: flex; align-items: center; justify-content: flex-start; text-align: left; }
 
-/* PADRÕES PARA DESKTOP (PC) */
+    /* PADRÕES PARA DESKTOP (PC) */
     .hide-on-desktop { display: none; }
     .short-name-mobile { display: none; } /* Esconde a sigla no PC */
+    .full-name-desktop { display: inline; } /* Mostra o nome longo no PC */
     .team-logo-mobile-full { display: inline-block; } /* Mostra a logo no PC */
 
     /* REGRAS PARA O MOBILE (CELULAR) */
@@ -201,11 +175,11 @@
         /* 1. Esconde o nome longo no celular sempre */
         .full-name-desktop { display: none !important; }
         
-        /* 2. Comportamento Padrão (Tabela Fechada): Mostra Sigla, Esconde Logo */
-        .short-name-mobile { display: inline !important; }
-        .team-logo-mobile-full { display: none !important; }
+        /* 2. Comportamento Padrão (Tabela Fechada): Mostra Logo e Sigla */
+        .short-name-mobile { display: inline !important; font-size: 0.9em; margin-left: 4px; }
+        .team-logo-mobile-full { display: inline-block !important; }
 
-        /* 3. Comportamento Expandido (Tabela Aberta): Esconde Sigla, Mostra Logo */
+        /* 3. Comportamento Expandido (Tabela Aberta): Esconde Sigla, Mostra SÓ a Logo */
         .full-view .short-name-mobile { display: none !important; }
         .full-view .team-logo-mobile-full { display: block !important; margin: 0 auto; }
 
@@ -221,13 +195,18 @@
         th, td { padding: 8px 2px !important; font-size: 0.85em; }
         .table-container { overflow-x: auto; }
         
+        /* Ajuste do alinhamento da célula de equipe no mobile */
         #table-teams-full td:nth-child(2) {
             text-align: center;
-            width: 60px;
+            width: 75px; /* Aumentado para dar espaço à Logo + Sigla juntas */
+        }
+        #table-teams-full .team-cell {
+            justify-content: center;
         }
 
-        /* Impede transbordo nos nomes dos jogadores */
-        #table-team-players td {
+        /* Impede transbordo nos nomes dos jogadores (Reticências) */
+        #table-team-players td:first-child,
+        #table-players td:nth-child(2) {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -1698,13 +1677,13 @@ function renderFullTeams() {
         let logoSrc = logos[t.equipe] || '';
         let sName = shortNames[t.equipe] || t.equipe;
         
-// Procure essa parte dentro do return da função renderFullTeams
         return `<tr>
             <td style="color:var(--accent); font-weight:bold;">${pos}º</td>
-            <td class="team-cell"> <img src="${logoSrc}" class="team-logo team-logo-mobile-full clickable" onclick="openTeamProfile('${t.equipe}')">
-                <span class="clickable full-name-desktop" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span>
-                <span class="clickable short-name-mobile" onclick="openTeamProfile('${t.equipe}')">${sName}</span>
-            </td>
+<td class="team-cell">
+        <img src="${logoSrc}" class="team-logo team-logo-mobile-full clickable" onclick="openTeamProfile('${t.equipe}')">
+        <span class="clickable full-name-desktop" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span>
+        <span class="clickable short-name-mobile" onclick="openTeamProfile('${t.equipe}')">${sName}</span>
+    </td>
             <td class="hide-mobile">${t.grupo}</td>
             <td style="color:#ffaa00; font-weight:bold">${t.pontos}</td>
             <td class="hide-mobile">${t.booyah}</td>
@@ -2047,7 +2026,7 @@ function renderTeamProfileStats() {
 
 let tbody = document.querySelector('#table-team-players tbody');
     tbody.innerHTML = players.sort((a,b) => b.abates - a.abates).map(p => {
-        // Lógica de reticências: se o nome for maior que 6, corta e põe "..."
+        // Se o nome for maior que 6 letras, coloca reticências
         let nameDisplay = p.jogador.length > 6 ? p.jogador.substring(0, 6) + "..." : p.jogador;
 
         return `<tr>
