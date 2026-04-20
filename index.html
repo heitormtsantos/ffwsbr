@@ -964,18 +964,37 @@ function openConfrontationModal() {
     if (intersectionDays.length === 0) return;
     
     let teamsData = [];
+    
+    // Filtra apenas os times que pertencem aos dois grupos envolvidos
+    const gruposEnvolvidos = [t.grupo, oppGroup];
+
     db.teams.forEach(tm => {
-        if(db.teamDaily[tm.equipe]) {
-            let filtered = db.teamDaily[tm.equipe].filter(d => intersectionDays.includes(d.dia));
-            if (filtered.length > 0) {
-                let stats = filtered.reduce((acc, curr) => { acc.pontos+=curr.pontos; acc.abates+=curr.abates; acc.booyah+=curr.booyah; return acc; }, {pontos:0, abates:0, booyah:0});
-                if(stats.pontos > 0 || stats.abates > 0) {
-                    teamsData.push({ equipe: tm.equipe, grupo: tm.grupo, pontos: stats.pontos, booyah: stats.booyah, abates: stats.abates, quedas: filtered.length * 6 });
+        // Verifica se o time pertence a um dos dois grupos
+        if(gruposEnvolvidos.includes(tm.grupo)) {
+            if(db.teamDaily[tm.equipe]) {
+                let filtered = db.teamDaily[tm.equipe].filter(d => intersectionDays.includes(d.dia));
+                if (filtered.length > 0) {
+                    let stats = filtered.reduce((acc, curr) => { 
+                        acc.pontos += curr.pontos; 
+                        acc.abates += curr.abates; 
+                        acc.booyah += curr.booyah; 
+                        return acc; 
+                    }, {pontos: 0, abates: 0, booyah: 0});
+                    
+                    teamsData.push({ 
+                        equipe: tm.equipe, 
+                        grupo: tm.grupo, 
+                        pontos: stats.pontos, 
+                        booyah: stats.booyah, 
+                        abates: stats.abates, 
+                        quedas: filtered.length * 6 
+                    });
                 }
             }
         }
     });
     
+    // Ordena o ranking dos 8 times por pontos
     teamsData.sort((a,b) => b.pontos - a.pontos);
     
     let tbody = document.querySelector('#table-modal-ranking tbody');
@@ -983,11 +1002,19 @@ function openConfrontationModal() {
         let isCurrent = tm.equipe === tName;
         let rowStyle = isCurrent ? "background-color: rgba(255, 170, 0, 0.1);" : "";
         let logoSrc = logos[tm.equipe] ? logos[tm.equipe] : '';
-        return `<tr style="${rowStyle}"><td style="color:var(--accent); font-weight:bold;">${index+1}º</td><td class="team-cell"><img src="${logoSrc}" class="team-logo" alt="">${shortNames[tm.equipe] || tm.equipe}</td><td>${tm.grupo}</td><td style="color:#ffaa00; font-weight:bold">${tm.pontos}</td><td>${tm.booyah}</td><td>${tm.abates}</td><td>${tm.quedas}</td></tr>`;
+        return `<tr style="${rowStyle}">
+                    <td style="color:var(--accent); font-weight:bold;">${index+1}º</td>
+                    <td class="team-cell"><img src="${logoSrc}" class="team-logo" alt="">${shortNames[tm.equipe] || tm.equipe}</td>
+                    <td>${tm.grupo}</td>
+                    <td style="color:#ffaa00; font-weight:bold">${tm.pontos}</td>
+                    <td>${tm.booyah}</td>
+                    <td>${tm.abates}</td>
+                    <td>${tm.quedas}</td>
+                </tr>`;
     }).join('');
 
-    document.getElementById('modal-title').innerText = `Ranking: Grupo ${t.grupo} vs Grupo ${oppGroup}`;
-    document.getElementById('modal-subtitle').innerText = `Considerando apenas os ${intersectionDays.length} dias em que se enfrentaram diretamente.`;
+    document.getElementById('modal-title').innerText = `Ranking do Confronto: Grupo ${t.grupo} vs Grupo ${oppGroup}`;
+    document.getElementById('modal-subtitle').innerText = `Mostrando apenas as 8 equipes envolvidas nos ${intersectionDays.length} dias de duelo direto.`;
     document.getElementById('confrontation-modal').classList.add('active');
 }
 
