@@ -143,20 +143,21 @@
             <div class="day-filters" id="team-day-filters"></div>
         </div>
         <div class="table-container">
-            <table id="table-teams-full">
-                <thead>
-    <tr>
-        <th onclick="sortTable('table-team-players', 0, false)">Jogador ↕</th>
-        <th onclick="sortTable('table-team-players', 1, true)">Abates ↕</th>
-        <th onclick="sortTable('table-team-players', 2, true)">Quedas ↕</th>
-        <th onclick="sortTable('table-team-players', 3, true)">Dano ↕</th>
-        <th onclick="sortTable('table-team-players', 4, true)">Assistências ↕</th>
-        <th onclick="sortTable('table-team-players', 5, true)">MVPs ↕</th>
-    </tr>
-</thead>
-                <tbody></tbody>
-            </table>
-        </div>
+    <table id="table-teams-full">
+        <thead>
+            <tr>
+                <th onclick="sortTable('table-teams-full', 0, true)"># ↕</th>
+                <th style="text-align:left;" onclick="sortTable('table-teams-full', 1, false)">Equipe ↕</th>
+                <th onclick="sortTable('table-teams-full', 2, false)">Grupo ↕</th>
+                <th onclick="sortTable('table-teams-full', 3, true)">Pontos ↕</th>
+                <th onclick="sortTable('table-teams-full', 4, true)">Booyah ↕</th>
+                <th onclick="sortTable('table-teams-full', 5, true)">Abates ↕</th>
+                <th onclick="sortTable('table-teams-full', 6, true)">Quedas ↕</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
         <h2 style="margin-top: 50px;">Classificação por Grupos</h2>
         <div class="groups-tables-grid" id="groups-tables-grid"></div>
@@ -400,7 +401,7 @@
 </div>
 
 <script>
-// ==========================================
+// ===============================>===========
 // BANCO DE DADOS E LOGOS
 // ==========================================
 
@@ -679,11 +680,28 @@ function getAggregatedTeams(selectedDays) {
 function renderFullTeams() {
     let tableData = getAggregatedTeams(selectedTeamDays);
     if (selectedTeamDays.length > 0) tableData = tableData.filter(t => !t.didNotPlay);
+    
+    // Garante que a tabela inicie ordenada por pontos
     tableData.sort((a, b) => b.pontos - a.pontos);
+    
     let tbody = document.querySelector('#table-teams-full tbody');
+    
     tbody.innerHTML = tableData.map((t, index) => {
         let pos = selectedTeamDays.length === 0 ? t.posGeral : (index + 1);
-        return `<tr><td style="color:var(--accent); font-weight:bold;">${pos}º</td><td class="team-cell"><img src="${logos[t.equipe]||''}" class="team-logo" alt=""><span class="clickable" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span></td><td>${t.grupo}</td><td style="color:#ffaa00; font-weight:bold">${t.pontos}</td><td>${t.booyah}</td><td>${t.abates}</td><td>${t.quedas}</td></tr>`;
+        let logoSrc = logos[t.equipe] ? logos[t.equipe] : '';
+        
+        return `<tr>
+            <td style="color:var(--accent); font-weight:bold;">${pos}º</td>
+            <td class="team-cell">
+                <img src="${logoSrc}" class="team-logo" alt="">
+                <span class="clickable" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span>
+            </td>
+            <td>${t.grupo}</td>
+            <td style="color:#ffaa00; font-weight:bold">${t.pontos}</td>
+            <td>${t.booyah}</td>
+            <td>${t.abates}</td>
+            <td>${t.quedas}</td>
+        </tr>`;
     }).join('');
 }
 
