@@ -606,29 +606,24 @@ function renderGroupsTables() {
 function renderTeamsDirectory() {
     const container = document.getElementById('teams-directory');
     let html = '';
-    
-    // Lista de grupos que queremos exibir
     const grupos = ['A', 'B', 'C', 'D'];
 
     grupos.forEach(g => {
-        // Filtra as equipes do grupo atual e ordena alfabeticamente dentro do grupo
         const equipesDoGrupo = db.teams
             .filter(t => t.grupo === g)
             .sort((a, b) => a.equipe.localeCompare(b.equipe));
 
-        // Adiciona um cabeçalho para o grupo que ocupa a largura total do grid
         html += `
-            <div style="grid-column: 1 / -1; margin-top: 20px; padding: 10px; background: rgba(255, 170, 0, 0.1); border-left: 4px solid var(--accent); border-radius: 4px;">
+            <div style="grid-column: 1 / -1; margin-top: 20px; padding: 10px; background: #242429; border-left: 4px solid var(--accent); border-radius: 4px;">
                 <h3 style="margin: 0; color: var(--accent);">Grupo ${g}</h3>
             </div>
         `;
 
-        // Adiciona os cards das equipes
         html += equipesDoGrupo.map(t => `
             <div class="team-item-card" onclick="openTeamProfile('${t.equipe}')">
                 <img src="${logos[t.equipe]||''}" alt="${t.equipe}">
                 <h4>${shortNames[t.equipe] || t.equipe}</h4>
-                <span>${t.equipe}</span>
+                <span style="font-size:0.8em; color:#888;">${t.equipe}</span>
             </div>
         `).join('');
     });
@@ -745,13 +740,17 @@ function renderTeamProfileStats() {
 function getConfrontationData() {
     let tName = currentTeamView;
     let t = db.teams.find(x => x.equipe === tName);
-    let oppGroup = document.getElementById('tp-opp-group').value;
+    let teamGroup = t.grupo; // Grupo da equipe que estamos vendo
+    let oppGroup = document.getElementById('tp-opp-group').value; // Grupo selecionado no filtro
     
-    let teamDays = db.teamDaily[tName] ? db.teamDaily[tName].map(d => d.dia) : [];
-    let oppTeamObj = db.teams.find(x => x.grupo === oppGroup);
-    let oppDays = (oppTeamObj && db.teamDaily[oppTeamObj.equipe]) ? db.teamDaily[oppTeamObj.equipe].map(d => d.dia) : [];
-    
-    let intersectionDays = teamDays.filter(d => oppDays.includes(d));
+    // Cruza a agenda para achar os dias em que os dois grupos jogaram juntos
+    let intersectionDays = [];
+    agenda.forEach((rodada, index) => {
+        if (rodada.grupos.includes(teamGroup) && rodada.grupos.includes(oppGroup)) {
+            intersectionDays.push(index + 1); // Converte o índice do array para Dia (1-10)
+        }
+    });
+
     return { tName, t, oppGroup, intersectionDays };
 }
 
@@ -762,10 +761,43 @@ function renderTeamConfrontation() {
     currentOppGroup = oppGroup;
     
     if (intersectionDays.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; color:#aaa; text-align:center; padding: 20px;">Nenhum confronto direto registrado contra o Grupo ${oppGroup} até o momento.</div>`;
+        container.innerHTML = `<div style="grid-column: 1/-1; color:#aaa; text-align:center; padding: 20px;">Nenhum confronto direto previsto na agenda contra o Grupo ${oppGroup}.</div>`;
         btn.style.display = 'none';
         return;
     }
+    
+    btn.style.display = 'inline-block';
+    
+    // Filtra estatísticas apenas dos dias em que se enfrentaram
+    let stats = (db.teamDaily[tName] || [])
+        .filter(d => intersectionDays.includes(d.dia))
+        .reduce((acc, curr) => {
+            acc.pontos += curr.pontos; acc.abates += curr.abates; return acc;
+        }, {pontos: 0, abates: 0});
+        
+    let totalQuedas = intersectionDays.length * 6;
+    
+    // Calcula o Ranking apenas considerando esses dias específicos
+    let teamsOverallPoints = {};
+    db.teams.forEach(tm => {
+        if(db.teamDaily[tm.equipe]) {
+            let pts = db.teamDaily[tm.equipe]
+                .filter(d => intersectionDays.includes(d.dia))
+                .reduce((sum, d) => sum + d.pontos, 0);
+            if (pts > 0 || intersectionDays.length > 0) teamsOverallPoints[tm.equipe] = pts;
+        }
+    });
+    
+    let sortedTeams = Object.keys(teamsOverallPoints).sort((a,b) => teamsOverallPoints[b] - teamsOverallPoints[a]);
+    let rankInConfrontation = sortedTeams.indexOf(tName) + 1;
+    
+    container.innerHTML = `
+        <div class="card"><div class="card-top-border"></div><h3>Pontos (vs ${oppGroup})</h3><div class="value">${stats.pontos}</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Total nos ${intersectionDays.length} dias</div></div>
+        <div class="card"><div class="card-top-border"></div><h3>Média Pontos</h3><div class="value">${totalQuedas > 0 ? (stats.pontos/totalQuedas).toFixed(1) : 0}</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Por queda</div></div>
+        <div class="card"><div class="card-top-border"></div><h3>Rank no Confronto</h3><div class="value">#${rankInConfrontation}</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Considerando os grupos do dia</div></div>
+        <div class="card"><div class="card-top-border"></div><h3>Quedas Jogadas</h3><div class="value">${totalQuedas}</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Dias enfrentados: ${intersectionDays.join(', ')}</div></div>
+    `;
+}
     
     btn.style.display = 'inline-block';
     let stats = db.teamDaily[tName].filter(d => intersectionDays.includes(d.dia)).reduce((acc, curr) => {
@@ -801,14 +833,23 @@ function openConfrontationModal() {
     
     let teamsData = [];
     db.teams.forEach(tm => {
-        if(db.teamDaily[tm.equipe]) {
-            let filtered = db.teamDaily[tm.equipe].filter(d => intersectionDays.includes(d.dia));
-            if (filtered.length > 0) {
-                let stats = filtered.reduce((acc, curr) => { acc.pontos+=curr.pontos; acc.abates+=curr.abates; acc.booyah+=curr.booyah; return acc; }, {pontos:0, abates:0, booyah:0});
-                if(stats.pontos > 0 || stats.abates > 0) {
-                    teamsData.push({ equipe: tm.equipe, grupo: tm.grupo, pontos: stats.pontos, booyah: stats.booyah, abates: stats.abates, quedas: filtered.length * 6 });
-                }
-            }
+        let daily = db.teamDaily[tm.equipe] || [];
+        let filtered = daily.filter(d => intersectionDays.includes(d.dia));
+        
+        // Só entra no ranking se o time jogou em pelo menos um dos dias de confronto
+        if (filtered.length > 0) {
+            let stats = filtered.reduce((acc, curr) => { 
+                acc.pontos+=curr.pontos; acc.abates+=curr.abates; acc.booyah+=curr.booyah; return acc; 
+            }, {pontos:0, abates:0, booyah:0});
+            
+            teamsData.push({ 
+                equipe: tm.equipe, 
+                grupo: tm.grupo, 
+                pontos: stats.pontos, 
+                booyah: stats.booyah, 
+                abates: stats.abates, 
+                quedas: filtered.length * 6 
+            });
         }
     });
     
@@ -818,12 +859,11 @@ function openConfrontationModal() {
     tbody.innerHTML = teamsData.map((tm, index) => {
         let isCurrent = tm.equipe === tName;
         let rowStyle = isCurrent ? "background-color: rgba(255, 170, 0, 0.1);" : "";
-        let logoSrc = logos[tm.equipe] ? logos[tm.equipe] : '';
-        return `<tr style="${rowStyle}"><td style="color:var(--accent); font-weight:bold;">${index+1}º</td><td class="team-cell"><img src="${logoSrc}" class="team-logo" alt="">${shortNames[tm.equipe] || tm.equipe}</td><td>${tm.grupo}</td><td style="color:#ffaa00; font-weight:bold">${tm.pontos}</td><td>${tm.booyah}</td><td>${tm.abates}</td><td>${tm.quedas}</td></tr>`;
+        return `<tr style="${rowStyle}"><td style="color:var(--accent); font-weight:bold;">${index+1}º</td><td class="team-cell"><img src="${logos[tm.equipe]||''}" class="team-logo">${shortNames[tm.equipe] || tm.equipe}</td><td>${tm.grupo}</td><td style="color:#ffaa00; font-weight:bold">${tm.pontos}</td><td>${tm.booyah}</td><td>${tm.abates}</td><td>${tm.quedas}</td></tr>`;
     }).join('');
 
-    document.getElementById('modal-title').innerText = `Ranking: Grupo ${t.grupo} vs Grupo ${oppGroup}`;
-    document.getElementById('modal-subtitle').innerText = `Considerando apenas os ${intersectionDays.length} dias em que se enfrentaram diretamente.`;
+    document.getElementById('modal-title').innerText = `Confronto Direto: Grupo ${t.grupo} vs Grupo ${oppGroup}`;
+    document.getElementById('modal-subtitle').innerText = `Estatísticas somadas apenas dos dias: ${intersectionDays.join(', ')}`;
     document.getElementById('confrontation-modal').classList.add('active');
 }
 
