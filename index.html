@@ -460,11 +460,19 @@
     <!-- PAGE: JOGADORES -->
     <div id="players" class="page">
         <h2>Classificação Geral de Jogadores</h2>
-        <div class="filters">
+ <div class="filters">
             <label style="color: var(--text-muted); font-weight: bold;">Equipe:</label>
             <select id="filter-team-players" onchange="onPlayerTeamFilterChanged()">
-    <option value="all">Todas</option>
-</select>
+                <option value="all">Todas</option>
+            </select>
+
+            <label style="color: var(--text-muted); font-weight: bold; margin-left: 15px;">Posição:</label>
+            <select id="filter-role-players" onchange="renderAllPlayers()">
+                <option value="all">Todas</option>
+                <option value="RUSH">Rush</option>
+                <option value="SUP">Suporte</option>
+                <option value="GRAN">Granadeiro</option>
+            </select>
             
             <label style="color: var(--text-muted); font-weight: bold; margin-left: 15px;">Dias:</label>
             <div class="day-filters" id="player-day-filters"></div>
@@ -3686,14 +3694,34 @@ function openPlayerProfile(playerName) {
 
 function renderAllPlayers() {
     let teamFilter = document.getElementById('filter-team-players').value;
+    
+    // Pega o valor do filtro de posição (Se não achar, assume 'all')
+    let roleSelect = document.getElementById('filter-role-players');
+    let roleFilter = roleSelect ? roleSelect.value : 'all';
+
     let dataToAggregate = db.playerDaily;
     if (selectedPlayerDays.length > 0) dataToAggregate = dataToAggregate.filter(p => selectedPlayerDays.includes(String(p.dia)));
+    
     let aggregated = {};
     dataToAggregate.forEach(row => {
         if (!aggregated[row.jogador]) aggregated[row.jogador] = { jogador: row.jogador, equipe: row.equipe, abates: 0, dano: 0, assists: 0, quedas: 0, mvp: 0 };
-        aggregated[row.jogador].abates += row.abates; aggregated[row.jogador].dano += row.dano; aggregated[row.jogador].assists += row.assists; aggregated[row.jogador].quedas += row.quedas; aggregated[row.jogador].mvp += row.mvp;
+        aggregated[row.jogador].abates += row.abates; 
+        aggregated[row.jogador].dano += row.dano; 
+        aggregated[row.jogador].assists += row.assists; 
+        aggregated[row.jogador].quedas += row.quedas; 
+        aggregated[row.jogador].mvp += row.mvp;
     });
-    let data = Object.values(aggregated).filter(p => teamFilter === 'all' || p.equipe === teamFilter).filter(p => p.quedas > 0);
+
+    let data = Object.values(aggregated)
+        .filter(p => teamFilter === 'all' || p.equipe === teamFilter)
+        // LÓGICA NOVA: Filtra pela Posição
+        .filter(p => {
+            if (roleFilter === 'all') return true;
+            let currentRole = playerRoles[p.jogador] || "RUSH"; // O padrão é Rush se o cara não tiver no BD
+            return currentRole === roleFilter;
+        })
+        .filter(p => p.quedas > 0);
+
     let tbody = document.querySelector('#table-players tbody');
     tbody.innerHTML = data.sort((a,b) => b.abates - a.abates).map((p, i) => `<tr>
         <td>${i+1}</td>
