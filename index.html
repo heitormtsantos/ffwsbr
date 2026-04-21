@@ -3611,22 +3611,39 @@ function openPlayerProfile(playerName) {
     const currentStatsGrid = document.getElementById("pp-current-grid");
     const overallCard = document.getElementById('player-overall-card');
 
-    if (isInactive) {
+if (isInactive) {
         if(overallCard) {
             overallCard.innerHTML = `
-                <div style="background: rgba(255,0,0,0.1); border: 2px solid #ff4444; padding: 30px; border-radius: 15px; text-align:center; width:100%; margin: 20px 0;">
-                    <h2 style="color:#ff4444; margin:0;">JOGADOR INATIVO</h2>
-                    <p style="color:#aaa; margin:10px 0 0 0;">Este jogador não está disputando a WB 2026 S1 no momento.</p>
-                    <div style="margin-top:20px; font-weight:bold; color:var(--accent);">Última participação: ${lastEd}</div>
+                <div style="
+                    background: rgba(255,0,0,0.1); 
+                    border: 2px solid #ff4444; 
+                    padding: 30px; 
+                    border-radius: 15px; 
+                    text-align: center; 
+                    width: 100%; 
+                    max-width: 1000px; 
+                    margin: 20px auto; 
+                    box-sizing: border-box;
+                    display: block;
+                    clear: both;
+                ">
+                    <h2 style="color:#ff4444; margin:0; font-size: 1.8em;">JOGADOR INATIVO</h2>
+                    <p style="color:#aaa; margin:10px 0 0 0; font-size: 1.1em;">Este jogador não está disputando a WB 2026 S1 no momento.</p>
+                    <div style="margin-top:20px; font-weight:bold; color:var(--accent); font-size: 1.2em;">
+                        Última participação: <span style="color:#fff;">${lastEd}</span>
+                    </div>
                 </div>`;
         }
+        // Esconde as seções de estatísticas atuais que ficariam vazias
         if(currentStatsTitle) currentStatsTitle.style.display = "none";
         if(currentStatsGrid) currentStatsGrid.style.display = "none";
         
         let quedasEl = document.getElementById('pp-quedas');
         if(quedasEl) quedasEl.innerText = "-";
         
-    } else {
+    }
+    
+    else {
         if(currentStatsTitle) currentStatsTitle.style.display = "block";
         if(currentStatsGrid) currentStatsGrid.style.display = "grid";
         
