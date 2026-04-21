@@ -578,8 +578,8 @@
 
         <div id="player-overall-card"></div>
         
-        <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">Desempenho Atual (WB 2026 S1)</h3>
-        <div class="grid-cards">
+<h3 id="pp-current-title" style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">Desempenho Atual (WB 2026 S1)</h3>
+        <div id="pp-current-grid" class="grid-cards">
             <div class="card"><div class="card-top-border"></div><h3>Abates Totais</h3><div class="value" id="pp-tot-kills">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-kills" style="color:#fff;">0.00</span> /queda</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-kills">#0</span></div></div>
             <div class="card"><div class="card-top-border"></div><h3>Recorde Abates</h3><div class="value" id="pp-record">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Em um único dia</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-record">#0</span></div></div>
             <div class="card"><div class="card-top-border"></div><h3>Dano Total</h3><div class="value" id="pp-tot-dmg">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-dmg" style="color:#fff;">0.00</span> /queda</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-dmg">#0</span></div></div>
@@ -2541,11 +2541,11 @@ function renderEditionRanking() {
 
     tbody.innerHTML = dataToShow.map((p, i) => {
         let nameShort = p.originalName.length > 7 ? p.originalName.substring(0, 6) + "..." : p.originalName;
-        let nameHtml = p.isPlaying ? 
-            `<span class="clickable full-name-desktop" onclick="openPlayerProfile('${p.activeName}')">${p.originalName}</span>
-             <span class="clickable short-name-mobile" onclick="openPlayerProfile('${p.activeName}')">${nameShort}</span>` : 
-            `<span class="full-name-desktop" style="color:#aaa;">${p.originalName}</span>
-             <span class="short-name-mobile" style="color:#aaa;">${nameShort}</span>`;
+        
+        // Clique liberado para todos (Ativos e Inativos)
+        let nameHtml = `
+            <span class="clickable full-name-desktop" onclick="openPlayerProfile('${p.activeName}')">${p.originalName}</span>
+            <span class="clickable short-name-mobile" onclick="openPlayerProfile('${p.activeName}')">${nameShort}</span>`;
             
         let teamHtml = p.isPlaying ? 
             `<div class="team-cell" style="justify-content:center;"><img src="${logos[p.equipe]||''}" class="team-logo"><span class="hide-mobile">${shortNames[p.equipe] || p.equipe}</span></div>` : 
@@ -2677,15 +2677,15 @@ function renderHistoricalRanking() {
         let shiftHtml = diff > 0 ? `<span style="color:#4caf50; font-size:0.8em;">▲${diff}</span>` : (diff < 0 ? `<span style="color:#f44336; font-size:0.8em;">▼${Math.abs(diff)}</span>` : `<span style="color:#888; font-size:0.8em;">-</span>`);
 
         let nameShort = p.originalName.length > 7 ? p.originalName.substring(0, 6) + "..." : p.originalName;
-        let nameHtml = p.isPlaying ? 
-            `<span class="clickable full-name-desktop" onclick="openPlayerProfile('${p.activeName}')">${p.originalName}</span>
-             <span class="clickable short-name-mobile" onclick="openPlayerProfile('${p.activeName}')">${nameShort}</span>` : 
-            `<span class="full-name-desktop" style="color:#aaa;">${p.originalName}</span>
-             <span class="short-name-mobile" style="color:#aaa;">${nameShort}</span>`;
+        
+        // Clique liberado para todos (Ativos e Inativos)
+        let nameHtml = `
+            <span class="clickable full-name-desktop" onclick="openPlayerProfile('${p.activeName}')">${p.originalName}</span>
+            <span class="clickable short-name-mobile" onclick="openPlayerProfile('${p.activeName}')">${nameShort}</span>`;
             
         let teamHtml = p.isPlaying ? 
             `<div class="team-cell" style="justify-content:center;"><img src="${logos[p.equipe]||''}" class="team-logo"><span class="hide-mobile">${shortNames[p.equipe] || p.equipe}</span></div>` : 
-            `<span>🚫</span>`;
+            `<span style="color:#666; font-size:0.8em;">Inativo</span>`;
 
         return `<tr>
             <td><div style="font-weight:bold; color:var(--accent);">${newPos}º</div>${shiftHtml}</td>
@@ -3556,56 +3556,49 @@ function getOverallColor(ovr) {
 }
 
 function openPlayerProfile(playerName) {
-    let p = db.players.find(x => x.jogador === playerName);
-    if (!p) return;
+    // Tenta encontrar o jogador no banco de ativos
+    let p = db.players.find(x => x.jogador.toLowerCase() === playerName.toLowerCase());
+    const isInactive = !p;
 
-    // --- 1. ESTATÍSTICAS ATUAIS ---
+    // Pega o nome oficial do histórico se ele for inativo
+    let officialName = playerName;
+    if (isInactive) {
+        let histRecord = histData.find(h => checkNameMatch(h.n, playerName));
+        if (histRecord) {
+            officialName = histRecord.n;
+        } else {
+            let lbffEntry = Object.keys(lbffData).find(name => checkNameMatch(name, playerName));
+            if (lbffEntry) officialName = lbffEntry;
+        }
+        
+        // Cria o objeto base com o nome oficial
+        p = { jogador: officialName, equipe: "Sem Equipe", abates: 0, quedas: 0, dano: 0, assists: 0, mvp: 0 };
+    }
+
+    // --- CONFIGURAÇÃO VISUAL ---
     document.getElementById('pp-name').innerText = p.jogador;
-    document.getElementById('pp-team').innerText = p.equipe;
-    document.getElementById('pp-team').onclick = () => openTeamProfile(p.equipe);
-    document.getElementById('pp-quedas').innerText = p.quedas || 0;
-    
-    document.getElementById('pp-tot-kills').innerText = p.abates || 0;
-    document.getElementById('pp-avg-kills').innerText = ((p.abates || 0) / (p.quedas || 1)).toFixed(2);
-    document.getElementById('pp-rank-kills').innerText = `#${p.rankKills || 0}`;
-    
-    let recorde = p.recorde || 0;
-    let rankRecorde = [...db.players].sort((a,b) => (b.recorde||0) - (a.recorde||0)).findIndex(x => x.jogador === p.jogador) + 1;
-    document.getElementById('pp-record').innerText = recorde;
-    document.getElementById('pp-rank-record').innerText = `#${rankRecorde}`;
-    
-    document.getElementById('pp-tot-dmg').innerText = p.dano || 0;
-    document.getElementById('pp-avg-dmg').innerText = ((p.dano || 0) / (p.quedas || 1)).toFixed(2);
-    document.getElementById('pp-rank-dmg').innerText = `#${p.rankDmg || 0}`;
-    
-    document.getElementById('pp-tot-assists').innerText = p.assists || 0;
-    document.getElementById('pp-avg-assists').innerText = ((p.assists || 0) / (p.quedas || 1)).toFixed(2);
-    document.getElementById('pp-rank-assists').innerText = `#${p.rankAssists || 0}`;
-    
-    document.getElementById('pp-tot-mvps').innerText = p.mvp || 0;
-    document.getElementById('pp-rank-mvps').innerText = `#${p.rankMvp || 0}`;
+    const teamEl = document.getElementById('pp-team');
+    if (teamEl) {
+        teamEl.innerText = isInactive ? "JOGADOR HISTÓRICO" : p.equipe;
+        teamEl.onclick = isInactive ? null : () => openTeamProfile(p.equipe);
+        teamEl.style.cursor = isInactive ? "default" : "pointer";
+    }
 
-    // --- 2. ESTATÍSTICAS HISTÓRICAS (LENDO DIRETO DO TOP 100) ---
-    let histKills = 0;
-    let histQuedas = 0;
-    
+    // --- CÁLCULO HISTÓRICO ---
+    let histKills = 0, histQuedas = 0, lastEd = "N/A";
     let histRecord = histData.find(h => checkNameMatch(h.n, p.jogador));
     
     if (histRecord) {
         histKills = histRecord.k;
         histQuedas = histRecord.q;
-    } else {
-        for (let key in lbffData) {
-            if (checkNameMatch(key, p.jogador)) {
-                for (let ed in lbffData[key]) {
-                    histKills += lbffData[key][ed].k;
-                    histQuedas += lbffData[key][ed].q;
-                }
-            }
-        }
     }
-    
-    // Soma a base histórica com o desempenho ATUAL
+
+    let playerEntries = Object.entries(lbffData).find(([name]) => checkNameMatch(name, p.jogador));
+    if (playerEntries) {
+        let editions = Object.keys(playerEntries[1]);
+        lastEd = editions[editions.length - 1]; 
+    }
+
     histKills += (p.abates || 0);
     histQuedas += (p.quedas || 0);
 
@@ -3613,81 +3606,49 @@ function openPlayerProfile(playerName) {
     document.getElementById('pp-hist-quedas').innerText = histQuedas;
     document.getElementById('pp-hist-avg').innerText = histQuedas > 0 ? (histKills / histQuedas).toFixed(2) : "0.00";
 
- // --- 3. GALERIA DE TROFÉUS E TÍTULOS ---
-    let colTitles = titlesData.coletivos.filter(t => t.players.some(pl => checkNameMatch(pl, p.jogador)));
-    let indTitles = titlesData.individuais.filter(t => checkNameMatch(t.player, p.jogador));
+    // --- TRATAMENTO PARA JOGADORES INATIVOS (Agora com IDs 100% seguros) ---
+    const currentStatsTitle = document.getElementById("pp-current-title");
+    const currentStatsGrid = document.getElementById("pp-current-grid");
+    const overallCard = document.getElementById('player-overall-card');
 
-    document.getElementById('pp-hist-col').innerText = colTitles.length;
-    document.getElementById('pp-hist-ind').innerText = indTitles.length;
-
-    let allTitles = [...colTitles, ...indTitles];
-    let trophiesHtml = '';
-
-    if(allTitles.length === 0) {
-        trophiesHtml = '<div style="color:#888; text-align:center; width:100%; padding:20px;">Nenhum título oficial registrado.</div>';
+    if (isInactive) {
+        if(overallCard) {
+            overallCard.innerHTML = `
+                <div style="background: rgba(255,0,0,0.1); border: 2px solid #ff4444; padding: 30px; border-radius: 15px; text-align:center; width:100%; margin: 20px 0;">
+                    <h2 style="color:#ff4444; margin:0;">JOGADOR INATIVO</h2>
+                    <p style="color:#aaa; margin:10px 0 0 0;">Este jogador não está disputando a WB 2026 S1 no momento.</p>
+                    <div style="margin-top:20px; font-weight:bold; color:var(--accent);">Última participação: ${lastEd}</div>
+                </div>`;
+        }
+        if(currentStatsTitle) currentStatsTitle.style.display = "none";
+        if(currentStatsGrid) currentStatsGrid.style.display = "none";
+        
+        let quedasEl = document.getElementById('pp-quedas');
+        if(quedasEl) quedasEl.innerText = "-";
+        
     } else {
-        trophiesHtml = allTitles.map(t => {
-            // Puxa logo do torneio (WB ou LBFF)
-            let tournamentImg = t.event.includes("WB") ? "wb.webp" : "lbff.webp";
-            
-            // Define a classe de cor da borda
-            let typeUpper = t.type.toUpperCase();
-            let borderClass = 'border-campeao'; // Padrão amarelo
-            if (typeUpper.includes("MVP")) borderClass = 'border-mvp';
-            if (typeUpper.includes("REVELAÇÃO")) borderClass = 'border-revelacao';
-            
-            let teamHtml = t.team ? `<div class="trophy-team"><img src="${t.teamImg}"> ${t.team}</div>` : '';
-            
-            return `
-            <div class="trophy-card ${borderClass}">
-                <img src="${tournamentImg}" class="trophy-img">
-                <div class="event" style="font-weight:bold; font-size:0.8em; color:#fff;">${t.event}</div>
-                <div class="type" style="color:var(--accent); font-size:0.75em; font-weight:bold;">${t.type}</div>
-                ${teamHtml}
-            </div>`;
-        }).join('');
+        if(currentStatsTitle) currentStatsTitle.style.display = "block";
+        if(currentStatsGrid) currentStatsGrid.style.display = "grid";
+        
+        document.getElementById('pp-quedas').innerText = p.quedas || 0;
+        document.getElementById('pp-tot-kills').innerText = p.abates || 0;
+        document.getElementById('pp-avg-kills').innerText = (p.abates / (p.quedas || 1)).toFixed(2);
+        document.getElementById('pp-rank-kills').innerText = `#${p.rankKills || 0}`;
+        document.getElementById('pp-record').innerText = p.recorde || 0;
+        document.getElementById('pp-tot-dmg').innerText = p.dano || 0;
+        document.getElementById('pp-avg-dmg').innerText = (p.dano / (p.quedas || 1)).toFixed(0);
+        document.getElementById('pp-rank-dmg').innerText = `#${p.rankDmg || 0}`;
+        document.getElementById('pp-tot-assists').innerText = p.assists || 0;
+        document.getElementById('pp-avg-assists').innerText = (p.assists / (p.quedas || 1)).toFixed(2);
+        document.getElementById('pp-rank-assists').innerText = `#${p.rankAssists || 0}`;
+        document.getElementById('pp-tot-mvps').innerText = p.mvp || 0;
+        document.getElementById('pp-rank-mvps').innerText = `#${p.rankMvp || 0}`;
+
+        renderActivePlayerCard(p);
     }
-    document.getElementById('pp-trophies-container').innerHTML = trophiesHtml;
 
-    // --- 4. RENDERIZAÇÃO DA CARTINHA GERAL ---
-    let insta = dbSocials[p.jogador];
-    let instaButtonHtml = insta ? `
-        <div style="margin-top: 15px;">
-            <a href="https://instagram.com/${insta}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); padding: 10px 20px; border-radius: 30px; width: fit-content; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
-                <img src="instagram.png" style="width: 20px;">
-                <span style="color: #fff; font-weight: bold; font-size: 0.9em;">@${insta}</span>
-            </a>
-        </div>` : '';
-
-    let ovr = calculateOverall(p);
-    let role = playerRoles[p.jogador] || "RUSH";
-    let accentColor = "#cd7f32"; 
-    let stars = "⭐";
-    let category = "SÉRIE A";
-
-    if (ovr >= 91) { accentColor = "#d4af37"; stars = "⭐⭐⭐⭐⭐"; category = "LENDÁRIO"; }
-    else if (ovr >= 86) { accentColor = "#c5a028"; stars = "⭐⭐⭐⭐"; category = "ELITE"; }
-    else if (ovr >= 81) { accentColor = "#e5e5e5"; stars = "⭐⭐⭐"; category = "MUITO BOM"; }
-    else if (ovr >= 75) { accentColor = "#a3a3a3"; stars = "⭐⭐"; category = "PROFISSIONAL"; }
-
-    let cardContainer = document.getElementById('player-overall-card'); 
-    if (cardContainer) {
-        cardContainer.innerHTML = `<div style="display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 20px; flex-wrap: wrap; margin: 20px 0; border: 1px solid rgba(255,255,255,0.05); justify-content: center;">
-            ${createPlayerCardHTML(p, 1)}
-            <div style="flex: 1; min-width: 280px;">
-                <div style="color: #888; font-size: 0.85em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;">Classificação Pro 2026</div>
-                <div style="font-size: 2em; margin-bottom: 10px;">${stars}</div>
-                <div style="background: ${accentColor}22; color: ${accentColor}; border: 1px solid ${accentColor}44; padding: 12px 25px; font-weight: 900; display: inline-block; font-size: 1.3em; border-radius: 5px; text-transform: uppercase;">${category}</div>
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
-                    <p style="color: #aaa; font-size: 0.95em; line-height: 1.6; margin: 0;">
-                        Performance calculada em tempo real.<br>
-                        Especialidade: <strong style="color:#fff">${role}</strong>
-                    </p>
-                    ${instaButtonHtml}
-                </div>
-            </div>
-        </div>`;
-    }
+    // --- GALERIA DE TROFÉUS ---
+    renderPlayerTrophies(p.jogador);
 
     navigate('player-profile');
 }
@@ -3733,6 +3694,71 @@ function renderAllPlayers() {
         <td class="hide-mobile">${p.quedas}</td>
         <td class="hide-mobile">${p.mvp}</td>
     </tr>`).join('');
+}
+
+function renderActivePlayerCard(p) {
+    let insta = dbSocials[p.jogador];
+    let instaButtonHtml = insta ? `
+        <div style="margin-top: 15px;">
+            <a href="https://instagram.com/${insta}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); padding: 10px 20px; border-radius: 30px; width: fit-content; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                <img src="instagram.png" style="width: 20px;">
+                <span style="color: #fff; font-weight: bold; font-size: 0.9em;">@${insta}</span>
+            </a>
+        </div>` : '';
+
+    let ovr = calculateOverall(p);
+    let role = playerRoles[p.jogador] || "RUSH";
+    let category = ovr >= 91 ? "LENDÁRIO" : (ovr >= 86 ? "ELITE" : (ovr >= 81 ? "MUITO BOM" : "PROFISSIONAL"));
+    let accentColor = ovr >= 91 ? "#d4af37" : (ovr >= 86 ? "#c5a028" : (ovr >= 81 ? "#e5e5e5" : "#cd7f32"));
+    let stars = ovr >= 91 ? "⭐⭐⭐⭐⭐" : (ovr >= 86 ? "⭐⭐⭐⭐" : (ovr >= 81 ? "⭐⭐⭐" : "⭐⭐"));
+
+    document.getElementById('player-overall-card').innerHTML = `
+        <div style="display: flex; gap: 30px; align-items: center; background: rgba(0,0,0,0.3); padding: 30px; border-radius: 20px; flex-wrap: wrap; margin: 20px 0; border: 1px solid rgba(255,255,255,0.05); justify-content: center;">
+            ${createPlayerCardHTML(p, 1)}
+            <div style="flex: 1; min-width: 280px;">
+                <div style="color: #888; font-size: 0.85em; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;">Classificação Pro 2026</div>
+                <div style="font-size: 2em; margin-bottom: 10px;">${stars}</div>
+                <div style="background: ${accentColor}22; color: ${accentColor}; border: 1px solid ${accentColor}44; padding: 12px 25px; font-weight: 900; display: inline-block; font-size: 1.3em; border-radius: 5px; text-transform: uppercase;">${category}</div>
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <p style="color: #aaa; font-size: 0.95em; line-height: 1.6; margin: 0;">Performance calculada em tempo real.<br>Especialidade: <strong style="color:#fff">${role}</strong></p>
+                    ${instaButtonHtml}
+                </div>
+            </div>
+        </div>`;
+}
+
+function renderPlayerTrophies(jogador) {
+    let colTitles = titlesData.coletivos.filter(t => t.players.some(pl => checkNameMatch(pl, jogador)));
+    let indTitles = titlesData.individuais.filter(t => checkNameMatch(t.player, jogador));
+    
+    // Atualiza os contadores na tela
+    document.getElementById('pp-hist-col').innerText = colTitles.length;
+    document.getElementById('pp-hist-ind').innerText = indTitles.length;
+
+    let allTitles = [...colTitles, ...indTitles];
+    
+    let trophiesHtml = allTitles.length === 0 ? 
+        '<div style="color:#888; text-align:center; width:100%; padding:20px;">Nenhum título oficial registrado na base de dados.</div>' : 
+        allTitles.map(t => {
+            let tournamentImg = t.event.includes("WB") ? "wb.webp" : "lbff.webp";
+            
+            let typeUpper = t.type.toUpperCase();
+            let borderClass = 'border-campeao';
+            if (typeUpper.includes("MVP")) borderClass = 'border-mvp';
+            if (typeUpper.includes("REVELAÇÃO")) borderClass = 'border-revelacao';
+
+            let teamHtml = t.team ? `<div class="trophy-team"><img src="${t.teamImg}"> ${t.team}</div>` : '';
+            
+            return `
+            <div class="trophy-card ${borderClass}">
+                <img src="${tournamentImg}" class="trophy-img" alt="${t.type}">
+                <div class="event" style="font-weight:bold; font-size:0.8em; color:#fff;">${t.event}</div>
+                <div class="type" style="color:var(--accent); font-size:0.75em; font-weight:bold;">${t.type}</div>
+                ${teamHtml}
+            </div>`;
+        }).join('');
+        
+    document.getElementById('pp-trophies-container').innerHTML = trophiesHtml;
 }
 
 function populateSelects() {
