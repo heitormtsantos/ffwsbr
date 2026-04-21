@@ -420,7 +420,7 @@
 <div class="container">
 
     <!-- PAGE: TIMES -->
-    <div id="teams" class="page active">
+<div id="teams" class="page active">
         <h2>Divisão de Grupos</h2>
         <div class="groups-container" id="groups-container"></div>
 
@@ -428,21 +428,40 @@
         <div class="filters">
             <label style="color: var(--text-muted); font-weight: bold;">Filtrar por Dias:</label>
             <div class="day-filters" id="team-day-filters"></div>
+            
+            <label style="color: var(--text-muted); font-weight: bold; margin-left: auto;">Mapa:</label>
+            <select id="filter-team-map" onchange="onMapFilterChanged()">
+                <option value="all">Todos os Mapas</option>
+                <option value="Bermuda">Bermuda</option>
+                <option value="Kalahari">Kalahari</option>
+                <option value="Purgatório">Purgatório</option>
+                <option value="Nova Terra">Nova Terra</option>
+                <option value="Solara">Solara</option>
+            </select>
         </div>
-<div class="table-container">
-            <table id="table-teams-full">
-               <thead>
-            <tr>
-                <th onclick="sortTable('table-teams-full', 0, true)"># ↕</th>
-                <th style="text-align:center;" onclick="sortTable('table-teams-full', 1, false)">E ↕</th> <th class="hide-mobile" onclick="sortTable('table-teams-full', 2, false)">GP ↕</th>
-                <th onclick="sortTable('table-teams-full', 3, true)">PTS ↕</th>
-                <th class="hide-mobile" onclick="sortTable('table-teams-full', 4, true)">B ↕</th>
-                <th class="hide-mobile" onclick="sortTable('table-teams-full', 5, true)">K ↕</th>
-                <th onclick="sortTable('table-teams-full', 6, true)">Q ↕</th>
-            </tr>
-        </thead>
-                <tbody></tbody>
-            </table>
+        
+        <div class="filters" id="queda-filter-container" style="margin-top: -10px; display: none;">
+            <label style="color: var(--accent); font-weight: bold;">Queda Específica:</label>
+            <select id="filter-queda" onchange="onQuedaFilterChanged()" style="flex: 1; max-width: 300px;">
+                <option value="all">Todas as Quedas do Período</option>
+            </select>
+        </div>
+
+        <div class="table-container">
+<table id="table-teams-full">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('table-teams-full', 0, true)"># ↕</th>
+                    <th style="text-align:center;" onclick="sortTable('table-teams-full', 1, false)">E ↕</th> 
+                    <th class="hide-mobile" onclick="sortTable('table-teams-full', 2, false)">GP ↕</th>
+                    <th onclick="sortTable('table-teams-full', 3, true)">PTS ↕</th>
+                    <th class="hide-mobile" onclick="sortTable('table-teams-full', 4, true)">B ↕</th>
+                    <th class="hide-mobile" onclick="sortTable('table-teams-full', 5, true)">K ↕</th>
+                    <th id="th-quedas-colocacao" onclick="sortTable('table-teams-full', 6, true)" title="Quedas Jogadas">Q ↕</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
         </div>
         <button class="btn-action hide-on-desktop" onclick="document.getElementById('table-teams-full').classList.toggle('full-view'); this.innerText = this.innerText === 'Ver Tabela Completa' ? 'Ocultar Detalhes' : 'Ver Tabela Completa';" style="width: 100%; margin-top: -15px; margin-bottom: 30px;">Ver Tabela Completa</button>
 
@@ -1373,6 +1392,34 @@ const histData = [
     {n:"MTS7", k:255, q:211}, {n:"KMX", k:255, q:285}, {n:"Moreira", k:250, q:372}, {n:"GØDKILL", k:248, q:264}, {n:"PEDRO.RS", k:245, q:294}
 ];
 
+// ==========================================
+// BANCO DE DADOS: DESEMPENHO POR QUEDA
+// ==========================================
+
+const posPoints = {1:12, 2:9, 3:8, 4:7, 5:6, 6:5, 7:4, 8:3, 9:2, 10:1, 11:0, 12:0};
+
+const dbQuedas = {
+    // DIA 1
+    1: {
+        1: { mapa: "Nova Terra", resultados: [ { equipe: "LOS", kills: 20, posicao: 1, booyah: 1 }, { equipe: "FLUXO W7M", kills: 8, posicao: 2, booyah: 0 }, { equipe: "AXS FUSION", kills: 4, posicao: 3, booyah: 0 }, { equipe: "CIVIS", kills: 1, posicao: 4, booyah: 0 }, { equipe: "LOUD SNICKERS", kills: 7, posicao: 5, booyah: 0 }, { equipe: "RISE GAMING", kills: 2, posicao: 6, booyah: 0 }, { equipe: "INTZ", kills: 8, posicao: 7, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 2, posicao: 8, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 0, posicao: 9, booyah: 0 }, { equipe: "E1 SPORTS", kills: 2, posicao: 10, booyah: 0 }, { equipe: "TEAM SOLID", kills: 3, posicao: 11, booyah: 0 }, { equipe: "LOOPS", kills: 1, posicao: 12, booyah: 0 } ] },
+        2: { mapa: "Solara", resultados: [ { equipe: "LOUD SNICKERS", kills: 11, posicao: 1, booyah: 1 }, { equipe: "AXS FUSION", kills: 2, posicao: 2, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 4, posicao: 3, booyah: 0 }, { equipe: "RISE GAMING", kills: 16, posicao: 4, booyah: 0 }, { equipe: "FLUXO W7M", kills: 5, posicao: 5, booyah: 0 }, { equipe: "LOS", kills: 2, posicao: 6, booyah: 0 }, { equipe: "LOOPS", kills: 7, posicao: 7, booyah: 0 }, { equipe: "CIVIS", kills: 1, posicao: 8, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 0, posicao: 9, booyah: 0 }, { equipe: "E1 SPORTS", kills: 0, posicao: 10, booyah: 0 }, { equipe: "INTZ", kills: 2, posicao: 11, booyah: 0 }, { equipe: "TEAM SOLID", kills: 2, posicao: 12, booyah: 0 } ] },
+        3: { mapa: "Purgatório", resultados: [ { equipe: "LOS", kills: 10, posicao: 1, booyah: 1 }, { equipe: "INTZ", kills: 4, posicao: 2, booyah: 0 }, { equipe: "FLUXO W7M", kills: 10, posicao: 3, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 4, posicao: 4, booyah: 0 }, { equipe: "LOUD SNICKERS", kills: 6, posicao: 5, booyah: 0 }, { equipe: "LOOPS", kills: 4, posicao: 6, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 7, posicao: 7, booyah: 0 }, { equipe: "AXS FUSION", kills: 1, posicao: 8, booyah: 0 }, { equipe: "CIVIS", kills: 5, posicao: 9, booyah: 0 }, { equipe: "E1 SPORTS", kills: 0, posicao: 10, booyah: 0 }, { equipe: "RISE GAMING", kills: 1, posicao: 11, booyah: 0 }, { equipe: "TEAM SOLID", kills: 0, posicao: 12, booyah: 0 } ] },
+        4: { mapa: "Bermuda", resultados: [ { equipe: "LOS", kills: 12, posicao: 1, booyah: 1 }, { equipe: "E1 SPORTS", kills: 8, posicao: 2, booyah: 0 }, { equipe: "LOUD SNICKERS", kills: 8, posicao: 3, booyah: 0 }, { equipe: "LOOPS", kills: 7, posicao: 4, booyah: 0 }, { equipe: "RISE GAMING", kills: 9, posicao: 5, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 4, posicao: 6, booyah: 0 }, { equipe: "INTZ", kills: 5, posicao: 7, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 1, posicao: 8, booyah: 0 }, { equipe: "FLUXO W7M", kills: 7, posicao: 9, booyah: 0 }, { equipe: "CIVIS", kills: 1, posicao: 10, booyah: 0 }, { equipe: "AXS FUSION", kills: 0, posicao: 11, booyah: 0 }, { equipe: "TEAM SOLID", kills: 0, posicao: 12, booyah: 0 } ] },
+        5: { mapa: "Kalahari", resultados: [ { equipe: "LOUD SNICKERS", kills: 16, posicao: 1, booyah: 1 }, { equipe: "AXS FUSION", kills: 11, posicao: 2, booyah: 0 }, { equipe: "LOOPS", kills: 12, posicao: 3, booyah: 0 }, { equipe: "INTZ", kills: 3, posicao: 4, booyah: 0 }, { equipe: "TEAM SOLID", kills: 13, posicao: 5, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 10, posicao: 6, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 9, posicao: 7, booyah: 0 }, { equipe: "RISE GAMING", kills: 3, posicao: 8, booyah: 0 }, { equipe: "E1 SPORTS", kills: 1, posicao: 9, booyah: 0 }, { equipe: "CIVIS", kills: 1, posicao: 10, booyah: 0 }, { equipe: "FLUXO W7M", kills: 4, posicao: 11, booyah: 0 }, { equipe: "LOS", kills: 0, posicao: 12, booyah: 0 } ] },
+        6: { mapa: "Bermuda", resultados: [ { equipe: "LOUD SNICKERS", kills: 17, posicao: 1, booyah: 1 }, { equipe: "TEAM SOLID", kills: 6, posicao: 2, booyah: 0 }, { equipe: "LOOPS", kills: 12, posicao: 3, booyah: 0 }, { equipe: "FLUXO W7M", kills: 9, posicao: 4, booyah: 0 }, { equipe: "E1 SPORTS", kills: 10, posicao: 5, booyah: 0 }, { equipe: "CIVIS", kills: 5, posicao: 6, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 0, posicao: 7, booyah: 0 }, { equipe: "INTZ", kills: 0, posicao: 8, booyah: 0 }, { equipe: "LOS", kills: 3, posicao: 9, booyah: 0 }, { equipe: "RISE GAMING", kills: 7, posicao: 10, booyah: 0 }, { equipe: "AXS FUSION", kills: 2, posicao: 11, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 0, posicao: 12, booyah: 0 } ] }
+    }
+    ,
+    // DIA 2
+    2: {
+        1: { mapa: "Bermuda", resultados: [ { equipe: "LOUD SNICKERS", kills: 13, posicao: 1, booyah: 1 }, { equipe: "CIVIS", kills: 8, posicao: 2, booyah: 0 }, { equipe: "VIRTUS PRO", kills: 9, posicao: 3, booyah: 0 }, { equipe: "TEAM SOLID", kills: 3, posicao: 4, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 4, posicao: 5, booyah: 0 }, { equipe: "ALPHA7", kills: 1, posicao: 6, booyah: 0 }, { equipe: "RISE GAMING", kills: 2, posicao: 7, booyah: 0 }, { equipe: "LOS", kills: 7, posicao: 8, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 8, posicao: 9, booyah: 0 }, { equipe: "ANGELS OUTPLAY", kills: 7, posicao: 10, booyah: 0 }, { equipe: "INTZ", kills: 5, posicao: 11, booyah: 0 }, { equipe: "RUSH GAMING", kills: 4, posicao: 12, booyah: 0 } ] },
+        2: { mapa: "Solara", resultados: [ { equipe: "LOS", kills: 4, posicao: 1, booyah: 1 }, { equipe: "TEAM SOLID", kills: 18, posicao: 2, booyah: 0 }, { equipe: "LOUD SNICKERS", kills: 11, posicao: 3, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 9, posicao: 4, booyah: 0 }, { equipe: "VIRTUS PRO", kills: 10, posicao: 5, booyah: 0 }, { equipe: "RISE GAMING", kills: 4, posicao: 6, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 7, posicao: 7, booyah: 0 }, { equipe: "RUSH GAMING", kills: 5, posicao: 8, booyah: 0 }, { equipe: "CIVIS", kills: 2, posicao: 9, booyah: 0 }, { equipe: "ALPHA7", kills: 7, posicao: 10, booyah: 0 }, { equipe: "ANGELS OUTPLAY", kills: 3, posicao: 11, booyah: 0 }, { equipe: "INTZ", kills: 0, posicao: 12, booyah: 0 } ] },
+        3: { mapa: "Kalahari", resultados: [ { equipe: "VIRTUS PRO", kills: 20, posicao: 1, booyah: 1 }, { equipe: "ALPHA7", kills: 2, posicao: 2, booyah: 0 }, { equipe: "TEAM SOLID", kills: 6, posicao: 3, booyah: 0 }, { equipe: "RISE GAMING", kills: 14, posicao: 4, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 4, posicao: 5, booyah: 0 }, { equipe: "LOUD SNICKERS", kills: 6, posicao: 6, booyah: 0 }, { equipe: "LOS", kills: 8, posicao: 7, booyah: 0 }, { equipe: "ANGELS OUTPLAY", kills: 1, posicao: 8, booyah: 0 }, { equipe: "CIVIS", kills: 1, posicao: 9, booyah: 0 }, { equipe: "INTZ", kills: 5, posicao: 10, booyah: 0 }, { equipe: "RUSH GAMING", kills: 4, posicao: 11, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 0, posicao: 12, booyah: 0 } ] },
+        4: { mapa: "Purgatório", resultados: [ { equipe: "INTZ", kills: 11, posicao: 1, booyah: 1 }, { equipe: "VASCO ESPORTS", kills: 8, posicao: 2, booyah: 0 }, { equipe: "LOS", kills: 8, posicao: 3, booyah: 0 }, { equipe: "RISE GAMING", kills: 7, posicao: 4, booyah: 0 }, { equipe: "VIRTUS PRO", kills: 4, posicao: 5, booyah: 0 }, { equipe: "LOUD SNICKERS", kills: 6, posicao: 6, booyah: 0 }, { equipe: "ANGELS OUTPLAY", kills: 1, posicao: 7, booyah: 0 }, { equipe: "TEAM SOLID", kills: 8, posicao: 8, booyah: 0 }, { equipe: "CIVIS", kills: 0, posicao: 9, booyah: 0 }, { equipe: "RUSH GAMING", kills: 3, posicao: 10, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 3, posicao: 11, booyah: 0 }, { equipe: "ALPHA7", kills: 2, posicao: 12, booyah: 0 } ] },
+        5: { mapa: "Nova Terra", resultados: [ { equipe: "LOUD SNICKERS", kills: 9, posicao: 1, booyah: 1 }, { equipe: "TEAM SOLID", kills: 12, posicao: 2, booyah: 0 }, { equipe: "INTZ", kills: 6, posicao: 3, booyah: 0 }, { equipe: "ANGELS OUTPLAY", kills: 3, posicao: 4, booyah: 0 }, { equipe: "ALPHA7", kills: 7, posicao: 5, booyah: 0 }, { equipe: "LOS", kills: 15, posicao: 6, booyah: 0 }, { equipe: "RUSH GAMING", kills: 6, posicao: 7, booyah: 0 }, { equipe: "RISE GAMING", kills: 9, posicao: 8, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 4, posicao: 9, booyah: 0 }, { equipe: "VIRTUS PRO", kills: 1, posicao: 10, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 4, posicao: 11, booyah: 0 }, { equipe: "CIVIS", kills: 2, posicao: 12, booyah: 0 } ] },
+        6: { mapa: "Kalahari", resultados: [ { equipe: "LOUD SNICKERS", kills: 13, posicao: 1, booyah: 1 }, { equipe: "LOS", kills: 12, posicao: 2, booyah: 0 }, { equipe: "INTZ", kills: 10, posicao: 3, booyah: 0 }, { equipe: "RISE GAMING", kills: 3, posicao: 4, booyah: 0 }, { equipe: "ANGELS OUTPLAY", kills: 4, posicao: 5, booyah: 0 }, { equipe: "ALPHA7", kills: 14, posicao: 6, booyah: 0 }, { equipe: "VASCO ESPORTS", kills: 1, posicao: 7, booyah: 0 }, { equipe: "TEAM SOLID", kills: 3, posicao: 8, booyah: 0 }, { equipe: "RUSH GAMING", kills: 4, posicao: 9, booyah: 0 }, { equipe: "VIRTUS PRO", kills: 6, posicao: 10, booyah: 0 }, { equipe: "INFLUENCE RAGE", kills: 2, posicao: 11, booyah: 0 }, { equipe: "CIVIS", kills: 0, posicao: 12, booyah: 0 } ] }
+    }
+};
+
 const db = {
     teams: [
         { equipe: 'FLUXO W7M', grupo: 'A' },
@@ -2198,6 +2245,7 @@ window.onload = () => {
     db.teams.sort((a,b) => b.pontos - a.pontos).forEach((t, i) => t.posGeral = i + 1);
     
     calculatePlayerRanks();
+    updateQuedaFilterOptions();
     buildDayFilters();
     populateSelects();
     renderFullTeams();
@@ -3002,7 +3050,136 @@ function onTeamDayFilterChanged() { buildDayFilters(); renderFullTeams(); render
 function onPlayerDayFilterChanged() { buildDayFilters(); renderAllPlayers(); }
 function onTpDayFilterChanged() { buildDayFilters(); renderTeamProfileStats(); }
 
+// --- NOVO SISTEMA DE FILTRO POR QUEDA ---
+
+function updateQuedaFilterOptions() {
+    let container = document.getElementById('queda-filter-container');
+    let select = document.getElementById('filter-queda');
+    if (!container || !select) return;
+
+    // MUDANÇA: Se estiver no filtro "Todos" (nenhum dia específico selecionado), esconde a caixa de queda
+    if (selectedTeamDays.length === 0) {
+        container.style.display = 'none';
+        select.innerHTML = '<option value="all">Todas as Quedas do Período</option>';
+        return;
+    }
+
+    select.innerHTML = '<option value="all">Todas as Quedas do Período</option>';
+    let daysToCheck = selectedTeamDays; // Agora ele só constrói o select se tiver um dia marcado
+    let hasAny = false;
+
+    daysToCheck.forEach(d => {
+        if (dbQuedas[d]) {
+            let optgroup = document.createElement('optgroup');
+            optgroup.label = `Dia ${d}`;
+            for (let q in dbQuedas[d]) {
+                hasAny = true;
+                let mapa = dbQuedas[d][q].mapa;
+                let opt = document.createElement('option');
+                opt.value = `${d}-${q}`; // Exemplo: "1-1" para Dia 1, Queda 1
+                opt.innerText = `Queda ${q} (${mapa})`;
+                optgroup.appendChild(opt);
+            }
+            select.appendChild(optgroup);
+        }
+    });
+
+    // Exibe a barra apenas se encontrou as quedas do dia selecionado
+    container.style.display = hasAny ? 'flex' : 'none';
+}
+
+function onTeamDayFilterChanged() { 
+    buildDayFilters(); 
+    updateQuedaFilterOptions(); // Atualiza as quedas antes de renderizar
+    document.getElementById('filter-queda').value = 'all'; // Reseta para evitar bugs
+    renderFullTeams(); 
+    renderGroupsTables(); 
+}
+
+// --- EVENTOS DOS NOVOS FILTROS ---
+
+function onMapFilterChanged() {
+    // Se escolher um Mapa geral, reseta a Queda específica para evitar bugs de lógica
+    let quedaSelect = document.getElementById('filter-queda');
+    if (quedaSelect) quedaSelect.value = 'all';
+    
+    renderFullTeams();
+    renderGroupsTables();
+}
+
+function onQuedaFilterChanged() {
+    // Se escolher uma Queda específica, reseta o filtro de Mapa (pois a queda já tem o dela)
+    let mapSelect = document.getElementById('filter-team-map');
+    if (mapSelect) mapSelect.value = 'all';
+    
+    renderFullTeams();
+    renderGroupsTables();
+}
+
 function getAggregatedTeams(selectedDays) {
+    let quedaSelect = document.getElementById('filter-queda');
+    let selectedQueda = quedaSelect ? quedaSelect.value : 'all';
+    
+    let mapSelect = document.getElementById('filter-team-map');
+    let selectedMap = mapSelect ? mapSelect.value : 'all';
+
+    // 1. QUEDA ESPECÍFICA (Usa a tabela de posições e ignora o resto)
+    if (selectedQueda !== 'all') {
+        let [d, q] = selectedQueda.split('-');
+        let matchData = dbQuedas[d][q];
+        
+        return db.teams.map(t => {
+            let res = matchData.resultados.find(r => r.equipe === t.equipe);
+            if (!res) return { ...t, pontos: 0, booyah: 0, abates: 0, quedas: 0, didNotPlay: true };
+            
+            let pPos = posPoints[res.posicao] || 0; 
+            return {
+                ...t,
+                pontos: pPos + res.kills, 
+                abates: res.kills,
+                booyah: res.booyah,
+                quedas: 1, 
+                posicaoQueda: res.posicao,
+                pontosPosicao: pPos,
+                didNotPlay: false
+            };
+        });
+    }
+
+    // 2. FILTRO POR MAPA (Calcula dinamicamente caçando as quedas do dbQuedas)
+    if (selectedMap !== 'all') {
+        let daysToCheck = selectedDays.length > 0 ? selectedDays : Object.keys(dbQuedas);
+        
+        // Cria cópias limpas (zeradas) de todos os times
+        let teamsData = db.teams.map(t => ({ ...t, pontos: 0, booyah: 0, abates: 0, quedas: 0 }));
+
+        daysToCheck.forEach(d => {
+            if (dbQuedas[d]) {
+                for (let q in dbQuedas[d]) {
+                    let drop = dbQuedas[d][q];
+                    
+                    // Se o mapa da queda for o escolhido, soma as estatísticas!
+                    if (drop.mapa.toLowerCase() === selectedMap.toLowerCase()) {
+                        drop.resultados.forEach(res => {
+                            let tIndex = teamsData.findIndex(t => t.equipe === res.equipe);
+                            if (tIndex > -1) {
+                                let pPos = posPoints[res.posicao] || 0;
+                                teamsData[tIndex].pontos += (pPos + res.kills);
+                                teamsData[tIndex].abates += res.kills;
+                                teamsData[tIndex].booyah += res.booyah;
+                                teamsData[tIndex].quedas += 1;
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        // Marca como "não jogou" se a equipe tiver 0 quedas nesse mapa
+        return teamsData.map(t => ({ ...t, didNotPlay: t.quedas === 0 }));
+    }
+
+    // 3. LÓGICA PADRÃO (Soma normal dos Dias pegando do db.teamDaily)
     if (selectedDays.length === 0) return db.teams.map(t => ({...t, didNotPlay: false}));
     return db.teams.map(t => {
         let daily = db.teamDaily[t.equipe] || [];
@@ -3017,6 +3194,21 @@ function renderFullTeams() {
     let tableData = getAggregatedTeams(selectedTeamDays);
     if (selectedTeamDays.length > 0) tableData = tableData.filter(t => !t.didNotPlay);
     
+    let quedaSelect = document.getElementById('filter-queda');
+    let isSingleDrop = quedaSelect && quedaSelect.value !== 'all';
+
+    // Muda o título da coluna dinamicamente
+    let thLast = document.getElementById('th-quedas-colocacao');
+    if (thLast) {
+        if (isSingleDrop) {
+            thLast.innerHTML = '<span class="full-name-desktop">C (Pts) ↕</span><span class="short-name-mobile">C ↕</span>';
+            thLast.title = "Colocação (Pontos de Posição)";
+        } else {
+            thLast.innerHTML = 'Q ↕';
+            thLast.title = "Quedas Jogadas";
+        }
+    }
+
     tableData.sort((a, b) => b.pontos - a.pontos);
     let tbody = document.querySelector('#table-teams-full tbody');
     
@@ -3025,30 +3217,25 @@ function renderFullTeams() {
         let logoSrc = logos[t.equipe] || '';
         let sName = shortNames[t.equipe] || t.equipe;
         
+        // Define o que aparece na última coluna
+        let lastColHtml = isSingleDrop 
+            ? `<span style="font-weight:bold; color:var(--accent);">${t.posicaoQueda}º</span> <span style="font-size:0.8em; color:var(--text-muted);">(${t.pontosPosicao})</span>` 
+            : t.quedas;
+
         return `<tr>
             <td style="color:var(--accent); font-weight:bold;">${pos}º</td>
-<td class="team-cell">
-        <img src="${logoSrc}" class="team-logo team-logo-mobile-full clickable" onclick="openTeamProfile('${t.equipe}')">
-        <span class="clickable full-name-desktop" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span>
-        <span class="clickable short-name-mobile" onclick="openTeamProfile('${t.equipe}')">${sName}</span>
-    </td>
+            <td class="team-cell">
+                <img src="${logoSrc}" class="team-logo team-logo-mobile-full clickable" onclick="openTeamProfile('${t.equipe}')">
+                <span class="clickable full-name-desktop" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span>
+                <span class="clickable short-name-mobile" onclick="openTeamProfile('${t.equipe}')">${sName}</span>
+            </td>
             <td class="hide-mobile">${t.grupo}</td>
             <td style="color:#ffaa00; font-weight:bold">${t.pontos}</td>
             <td class="hide-mobile">${t.booyah}</td>
             <td class="hide-mobile">${t.abates}</td>
-            <td>${t.quedas}</td>
+            <td>${lastColHtml}</td>
         </tr>`;
     }).join('');
-}
-
-function renderHomeGroups() {
-    let container = document.getElementById('groups-container');
-    let html = '';
-    ['A', 'B', 'C', 'D'].forEach(g => {
-        let rows = db.teams.filter(t => t.grupo === g).sort((a,b) => b.pontos - a.pontos).map(t => `<li><img src="${logos[t.equipe]||''}" class="team-logo" alt=""><span class="clickable" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span></li>`).join('');
-        html += `<div class="group-card-simple"><div class="group-header-simple">Grupo ${g}</div><ul class="group-list">${rows}</ul></div>`;
-    });
-    container.innerHTML = html;
 }
 
 function renderGroupsTables() {
@@ -3056,21 +3243,33 @@ function renderGroupsTables() {
     let html = '';
     let tableData = getAggregatedTeams(selectedTeamDays);
     
-    // Ordena todos os times primeiro para pegar a posição global real (mesmo se houver filtros ativos)
+    let quedaSelect = document.getElementById('filter-queda');
+    let isSingleDrop = quedaSelect && quedaSelect.value !== 'all';
+
+    // Header dinâmico para as tabelinhas de grupo
+    let lastColHeader = isSingleDrop 
+        ? '<th style="padding:8px" title="Colocação">C (Pts)</th>' 
+        : '<th style="padding:8px" title="Quedas Jogadas">Q</th>';
+
     tableData.sort((a, b) => b.pontos - a.pontos);
     tableData.forEach((t, i) => t.currentPos = i + 1);
 
     ['A', 'B', 'C', 'D'].forEach(g => {
-        // Como o tableData já está ordenado globalmente, os times dentro do filter já virão na ordem correta de pontos
         let rows = tableData.filter(t => t.grupo === g).map(t => {
             let sName = shortNames[t.equipe] || t.equipe;
+            
+            // Coluna final dinâmica
+            let lastColHtml = isSingleDrop 
+                ? `<span style="font-weight:bold; color:var(--accent);">${t.posicaoQueda}º</span> <span style="font-size:0.8em; color:var(--text-muted);">(${t.pontosPosicao})</span>` 
+                : t.quedas;
+
             return `<tr>
                         <td style="padding: 6px; color:#aaa; font-weight:bold;">${t.currentPos}º</td>
                         <td style="padding: 6px; font-weight:bold; text-align:left;"><span class="clickable" onclick="openTeamProfile('${t.equipe}')">${sName}</span></td>
                         <td style="padding: 6px; color:var(--accent);">${t.pontos}</td>
                         <td style="padding: 6px;">${t.booyah}</td>
                         <td style="padding: 6px;">${t.abates}</td>
-                        <td style="padding: 6px; color:var(--text-muted);">${t.quedas}</td>
+                        <td style="padding: 6px; color:var(--text-muted);">${lastColHtml}</td>
                     </tr>`;
         }).join('');
         
@@ -3085,7 +3284,7 @@ function renderGroupsTables() {
                                     <th style="padding:8px">PTS</th>
                                     <th style="padding:8px" title="Booyahs">B!</th>
                                     <th style="padding:8px">KILLS</th>
-                                    <th style="padding:8px" title="Quedas Jogadas">Q</th>
+                                    ${lastColHeader}
                                 </tr>
                             </thead>
                             <tbody>${rows}</tbody>
@@ -3094,6 +3293,16 @@ function renderGroupsTables() {
                  </div>`;
     });
     
+    container.innerHTML = html;
+}
+
+function renderHomeGroups() {
+    let container = document.getElementById('groups-container');
+    let html = '';
+    ['A', 'B', 'C', 'D'].forEach(g => {
+        let rows = db.teams.filter(t => t.grupo === g).sort((a,b) => b.pontos - a.pontos).map(t => `<li><img src="${logos[t.equipe]||''}" class="team-logo" alt=""><span class="clickable" onclick="openTeamProfile('${t.equipe}')">${t.equipe}</span></li>`).join('');
+        html += `<div class="group-card-simple"><div class="group-header-simple">Grupo ${g}</div><ul class="group-list">${rows}</ul></div>`;
+    });
     container.innerHTML = html;
 }
 
