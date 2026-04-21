@@ -269,18 +269,19 @@
 
 <nav>
     <div class="nav-header-mobile">
-        <span>FFWS BRASIL 26</span>
+        <span>FFWS BRASIL 26 - NAKATAFF</span>
         <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
     </div>
     <div class="nav-links" id="nav-links">
         <button onclick="navigate('teams')" class="active" id="nav-teams">Classificação Times</button>
         <button onclick="navigate('players')" id="nav-players">Classificação Jogadores</button>
         <button onclick="navigate('teams-list')" id="nav-teams-list">Equipes</button>
+        <button onclick="navigate('selection-wb')">Seleção</button>
         <button onclick="navigate('records-ind')" id="nav-records-ind">Recordes</button>
         <button onclick="navigate('maps')" id="nav-maps">Mapas</button>
         <button onclick="navigate('compare')" id="nav-compare">Comparar 1v1</button>
-        <button onclick="navigate('schedule')" id="nav-schedule">Próximos Confrontos</button>
-        <button onclick="navigate('history')" id="nav-history">Histórico WB</button>
+        <button onclick="navigate('schedule')" id="nav-schedule">Datas</button>
+        <button onclick="navigate('history')" id="nav-history">História WB</button>
     </div>
 </nav>
 
@@ -429,6 +430,20 @@
             </table>
         </div>
 </div>
+
+<div id="selection-wb" class="page">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="font-size: 3em; color: #ff0000; text-shadow: 0 0 15px rgba(255,0,0,0.5); margin-bottom: 10px;">SELEÇÃO DA SEMANA</h1>
+            <p style="color: var(--text-muted);">Os brabos que dominaram o servidor nesta semana.</p>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap;" id="selection-week-filters">
+            </div>
+
+        <div id="selection-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding-bottom: 50px;">
+            </div>
+    </div>
+
     <!-- PAGE: PLAYER PROFILE -->
 <div id="player-profile" class="page">
         <button class="btn-back" onclick="navigate('players')">← Voltar</button>
@@ -781,6 +796,22 @@ const dbStaff = [
     { nome: "LZZ", equipe: "CIVIS", cargo: "Analista" },
     { nome: "DOODLES", equipe: "ANGELS OUTPLAY", cargo: "Head Coach" }
 ];
+
+// 1. Configuração estendida para 10 semanas (2 dias cada)
+const wbWeeks = {
+    "1": [1, 2],
+    "2": [3, 4],
+    "3": [5, 6],
+    "4": [7, 8],
+    "5": [9, 10],
+    "6": [11, 12],
+    "7": [13, 14],
+    "8": [15, 16],
+    "9": [17, 18],
+    "10": [19, 20]
+};
+
+let currentSelectionWeek = "5";
 
 // Mapeamento de Instagram (Exemplo: adicione o @ de cada um aqui)
 const dbSocials = {
@@ -1144,7 +1175,6 @@ const playerCaptains = {
     "Bops": true,
     "General!": true,
     "TRAP": true,
-    "Cauan7":true,
 };
 
 const playerRoles = {
@@ -1167,20 +1197,20 @@ const playerRoles = {
 };
 
 const playerPhotos = {
-    "MT7": "mt7.webp","Bops": "bops.webp", "Giuh": "giuh.webp", "BuTziN": "but.webp", "Proxx7": "proxx7.webp",
+    "MT7": "mt7.png","Bops": "bops.png", "Giuh": "silhueta.png", "BuTziN": "silhueta.png", "Proxx7": "silhueta.png",
     "Pitbull": "silhueta.png", "PETER": "silhueta.png", "vitinxp": "silhueta.png", "Motovea": "silhueta.png", "BYTE333": "silhueta.png",
     "Pão7": "silhueta.png", "Cauã9": "silhueta.png", "Juca10xL": "silhueta.png", "Lyon": "silhueta.png",
     "lippe!": "silhueta.png", "itzking1": "silhueta.png", "Razure": "silhueta.png", "IGOR7": "silhueta.png",
-    "HAK": "hak.webp", "NICKZ": "nickz7.webp", "TRAP": "trap.png", "GUAXA": "guaxa.webp", "BZP": "bzp.webp",
-    "Sam7": "sam7.webp", "JNmvp7": "jnmvp.webp", "Brisa7": "brisa7.webp", "NEYawp": "neyawp.webp", "MitoMvp": "mitomvp.webp",
+    "HAK": "silhueta.png", "NICKZ": "silhueta.png", "TRAP": "trap.png", "GUAXA": "silhueta.png", "BZP": "silhueta.png",
+    "Sam7": "silhueta.png", "JNmvp7": "jnmvp.png", "Brisa7": "silhueta.png", "NEYawp": "silhueta.png", "MitoMvp": "silhueta.png",
     "BLACK02": "silhueta.png", "LC777": "silhueta.png", "GUIMERLQ": "silhueta.png", "PROZIN": "silhueta.png", "MitinX": "silhueta.png",
-    "Rigby245": "rigby.webp", "General!": "general.webp", "Raone7": "raone7.webp", "Yago": "yago.webp", "mtsexy.": "mtsexy.webp",
+    "Rigby245": "silhueta.png", "General!": "silhueta.png", "Raone7": "silhueta.png", "Yago": "yago.png", "mtsexy.": "silhueta.png",
     "João7": "silhueta.png", "kauãxp": "silhueta.png", "GUS": "silhueta.png", "honeyzL": "silhueta.png",
     "Bahiaz7": "silhueta.png", "BIELGOD": "silhueta.png", "Rojão": "silhueta.png", "ZETSU9": "silhueta.png",
     "Yann7awp": "silhueta.png", "SOARES": "silhueta.png", "Redxzzz": "silhueta.png", "Theus": "silhueta.png", "wLiu": "silhueta.png",
     "Luan7": "silhueta.png", "Ericking": "silhueta.png", "Stark": "silhueta.png", "Draxx7": "silhueta.png",
     "ITAL0$$": "silhueta.png", "IguiNmvp": "silhueta.png", "Naandox": "silhueta.png", "KaKaZk": "silhueta.png", "Erick11": "silhueta.png",
-    "Lost21": "lost21.webp", "Cauan7": "cauan7.webp", "Nikeboy": "nikeboy.webp", "Mala": "mala.webp", "Shotzzrx": "shotzzrx.webp",
+    "Lost21": "silhueta.png", "Cauan7": "silhueta.png", "Nikeboy": "silhueta.png", "Mala": "silhueta.png", "Shotzzrx": "silhueta.png",
     "Keven7!": "silhueta.png", "WillProdigy": "silhueta.png", "Destroi7": "silhueta.png", "YOKO7": "silhueta.png", "Master77": "silhueta.png",
     "DRADE.11": "silhueta.png", "SEU PAI": "silhueta.png", "WM": "silhueta.png", "nepoIGN": "silhueta.png"
 };
@@ -1204,7 +1234,7 @@ const shortNames = {
 
 // Dicionário para "traduzir" o nome da Liquipedia para o nosso Banco
 const historicalAliases = {
-    "Lost": "Lost21", "MitoMvp": "MITOmvp", "NandoX": "Naandox", "But": "BuTziN", "General": "General!",
+    "Lost": "Lost21", "NandoX": "Naandox", "But": "BuTziN", "General": "General!",
     "VITINxp": "vitinxp", "PÃO7": "Pão7", "DRAXX7": "Draxx7", "Stark7": "Stark", "GIUH.87": "Giuh",
     "Motovea7": "Motovea", "Nickz7": "NICKZ", "HONEY": "honeyzL", "Cauã": "Cauã9", "PETERxl": "PETER",
     "o Mala": "Mala", "Zetsu9": "ZETSU9", "iguiNmvp": "IguiNmvp", "KakaZk": "KaKaZk", "Prozin10": "PROZIN",
@@ -1217,7 +1247,7 @@ const histData = [
     {n:"Rigby245", k:1317, q:781}, {n:"TRAP", k:1316, q:769}, {n:"Raone7", k:1311, q:652}, {n:"But", k:1297, q:904}, {n:"Gus", k:1284, q:942},
     {n:"General", k:1269, q:1082}, {n:"MODESTIA", k:1240, q:1047}, {n:"VITINxp", k:1237, q:923}, {n:"PÃO7", k:1154, q:1034}, {n:"DRAXX7", k:1125, q:839},
     {n:"MT7", k:1121, q:562}, {n:"R7", k:1020, q:962}, {n:"BIELGOD", k:989, q:911}, {n:"Mts007", k:946, q:762}, {n:"Razure", k:941, q:864},
-    {n:"Noda", k:930, q:816}, {n:"Stark7", k:901, q:652}, {n:"GIUH.87", k:901, q:572}, {n:"Pitbull", k:898, q:617}, {n:"Syaz", k:894, q:631},
+    {n:"Noda", k:930, q:816}, {n:"Stark7", k:901, q:652}, {n:"GIUH.87", k:901, q:572}, {n:"ERICKMVP", k:898, q:617}, {n:"Syaz", k:894, q:631},
     {n:"Motovea7", k:890, q:560}, {n:"Nickz7", k:881, q:512}, {n:"CHINÊS", k:854, q:734}, {n:"Lobato", k:849, q:871}, {n:"ITALO", k:800, q:781},
     {n:"OUSADO", k:797, q:620}, {n:"Vitin9", k:786, q:592}, {n:"GUAXA", k:780, q:657}, {n:"NandoX", k:762, q:580}, {n:"HONEY", k:752, q:635},
     {n:"TATU13", k:735, q:676}, {n:"BAND", k:701, q:536}, {n:"FON", k:685, q:618}, {n:"Cauã", k:658, q:596}, {n:"João7", k:650, q:573},
@@ -2078,6 +2108,10 @@ window.onload = () => {
     renderHistCompare();
     renderHistoricalRanking();
     
+    // --> FUNÇÕES DA SELEÇÃO WB (ADICIONE AQUI) <--
+    renderSelectionFilters();
+    renderSelection();
+    
     updateCountdown();
     setInterval(updateCountdown, 1000);
 };
@@ -2162,6 +2196,73 @@ function toggleEdition(ed) {
     else selectedEditions.push(ed);
     buildEditionFilters();
     renderEditionRanking();
+}
+
+function renderSelectionFilters() {
+    const container = document.getElementById('selection-week-filters');
+    if(!container) return;
+    
+    // Filtramos apenas as semanas que possuem algum dado no db.playerDaily
+    const weeksWithData = Object.keys(wbWeeks).filter(w => {
+        const days = wbWeeks[w];
+        return db.playerDaily.some(d => days.includes(Number(d.dia)));
+    });
+
+    // Se não houver dados em nenhuma semana ainda, mostramos pelo menos a Semana 1 (vazia)
+    const displayWeeks = weeksWithData.length > 0 ? weeksWithData : ["1"];
+
+    container.innerHTML = displayWeeks.map(w => `
+        <button class="btn-day ${currentSelectionWeek === w ? 'active' : ''}" 
+                onclick="currentSelectionWeek='${w}'; renderSelection(); renderSelectionFilters();"
+                style="${currentSelectionWeek === w ? 'background:#ff0000; border-color:#ff0000; color:#fff;' : ''}">
+            SEMANA ${w}
+        </button>
+    `).join('');
+}
+
+function renderSelection() {
+    const container = document.getElementById('selection-container');
+    if(!container) return;
+    
+    const days = wbWeeks[currentSelectionWeek];
+    
+    // 1. Agrupar dados da semana selecionada
+    let stats = {};
+    db.playerDaily.filter(d => days.includes(Number(d.dia))).forEach(row => {
+        if(!stats[row.jogador]) {
+            stats[row.jogador] = { jogador: row.jogador, equipe: row.equipe, abates: 0, dano: 0, assists: 0, quedas: 0 };
+        }
+        stats[row.jogador].abates += row.abates;
+        stats[row.jogador].dano += row.dano;
+        stats[row.jogador].assists += row.assists;
+        stats[row.jogador].quedas += row.quedas;
+    });
+
+    const players = Object.values(stats);
+
+    // 2. Lógica de seleção corrigida para ler "GRAN" e "SUP" do seu playerRoles
+    const getTop = (roleList, count) => {
+        return players
+            .filter(p => roleList.includes(playerRoles[p.jogador] || "RUSH"))
+            .sort((a,b) => b.abates - a.abates)
+            .slice(0, count);
+    };
+
+    const selecionados = [
+        ...getTop(["RUSH"], 2), // Traz os 2 melhores Rushers
+        ...getTop(["GRAN"], 1), // Traz o melhor Grandeiro
+        ...getTop(["SUP"], 1)   // Traz o melhor Suporte/Sniper
+    ];
+
+    if(selecionados.length === 0) {
+        container.innerHTML = `
+            <div style="text-align:center; padding: 50px; color: #888; border: 1px dashed #333; border-radius: 15px; width: 100%;">
+                <p>Aguardando o início das batalhas da Semana ${currentSelectionWeek}...</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = selecionados.map(p => createSelectionCardHTML(p)).join('');
 }
 
 // 2. Renderiza a tabela filtrada por Edição
@@ -2359,6 +2460,51 @@ function renderHistoricalRanking() {
             <td style="color:#ffaa00;">${(p.totalKills / (p.totalQuedas || 1)).toFixed(2)}</td>
         </tr>`;
     }).join('');
+}
+
+// Cartinha Especial Vermelha Seleção WB
+function createSelectionCardHTML(p) {
+    const role = playerRoles[p.jogador] || "RUSH";
+    const photo = playerPhotos[p.jogador] || "silhueta.png";
+    const teamLogo = logos[p.equipe] || "";
+    const danoK = (p.dano / 1000).toFixed(1) + "K";
+    const redAccent = "#ff0000";
+
+    return `
+        <div onclick="openPlayerProfile('${p.jogador}')" style="cursor:pointer; width: 280px; height: 420px; background: #000; border: 4px solid ${redAccent}; border-radius: 15px; position: relative; overflow: hidden; box-shadow: 0 0 25px rgba(255, 0, 0, 0.5); margin: 0 auto;">
+            <div style="position: absolute; inset: 0; background: radial-gradient(circle at 30% 30%, #400, #000); opacity: 0.95;"></div>
+            
+            <div style="position: absolute; top: 15px; left: 15px; z-index: 10; background: ${redAccent}; color: #fff; padding: 4px 12px; border-radius: 4px; font-size: 0.75em; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">
+                SELEÇÃO DA SEMANA
+            </div>
+
+            <div style="position: absolute; top: 50px; left: 25px; z-index: 4; text-align: center; color: ${redAccent};">
+                <div style="font-size: 22px; font-weight: 900;">${role}</div>
+                <div style="margin: 8px auto; width: 35px; height: 3px; background: ${redAccent};"></div>
+                <img src="${teamLogo}" style="width: 50px; height: 50px; object-fit: contain; margin-top: 5px; filter: drop-shadow(0 0 5px rgba(255,0,0,0.3));">
+            </div>
+
+            <img src="${photo}" style="position: absolute; top: 20px; right: -35px; height: 270px; z-index: 2; filter: drop-shadow(5px 5px 15px #000); -webkit-mask-image: linear-gradient(to bottom, black 75%, transparent 100%);">
+            
+            <div style="position: absolute; bottom: 0; width: 100%; height: 170px; background: linear-gradient(transparent, #000 45%); z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 20px;">
+                <div style="color: #fff; font-size: 26px; font-weight: 900; text-transform: uppercase; margin-bottom: 12px; text-shadow: 0 0 15px ${redAccent};">${p.jogador}</div>
+                
+                <div style="display: flex; justify-content: space-around; width: 90%; color: #fff; border-top: 1px solid rgba(255,0,0,0.3); padding-top: 10px;">
+                    <div style="text-align:center;">
+                        <div style="font-size: 0.65em; color: #888;">KILLS</div>
+                        <div style="font-size: 1.1em; font-weight: 900; color: ${redAccent};">${p.abates}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size: 0.65em; color: #888;">DANO</div>
+                        <div style="font-size: 1.1em; font-weight: 900;">${danoK}</div>
+                    </div>
+                    <div style="text-align:center;">
+                        <div style="font-size: 0.65em; color: #888;">QUEDAS</div>
+                        <div style="font-size: 1.1em; font-weight: 900;">${p.quedas}</div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
 }
 
 function createPlayerCardHTML(p, scale = 1) {
