@@ -255,6 +255,59 @@
     .team-item-card h4 { margin: 10px 0 5px 0; color: #fff; font-size: 1.1em; }
     .team-item-card span { color: var(--accent); font-weight: bold; font-size: 0.9em; }
 
+    /* --- GALERIA DE TROFÉUS --- */
+    .trophy-card {
+        background: linear-gradient(145deg, rgba(30,30,35,1), rgba(15,15,20,1));
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 15px;
+        width: 140px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        transition: 0.3s;
+    }
+    .trophy-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent);
+        box-shadow: 0 8px 15px rgba(255,170,0,0.2);
+    }
+    .trophy-card img.trophy-img {
+        height: 65px;
+        object-fit: contain;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
+    .trophy-card .event {
+        color: #fff;
+        font-weight: 900;
+        font-size: 0.95em;
+        text-align: center;
+    }
+    .trophy-card .type {
+        color: var(--accent);
+        font-size: 0.75em;
+        text-transform: uppercase;
+        font-weight: bold;
+        text-align: center;
+    }
+    .trophy-card .trophy-team {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0,0,0,0.4);
+        padding: 4px 8px;
+        border-radius: 20px;
+        font-size: 0.75em;
+        color: #aaa;
+        margin-top: auto;
+    }
+    .trophy-card .trophy-team img {
+        height: 16px;
+        filter: none;
+    }
+
     /* Modal */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
     .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
@@ -360,7 +413,6 @@
 
  <div id="team-profile" class="page">
         <button class="btn-back" onclick="navigate('teams-list')">← Voltar para Equipes</button>
-
         <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; margin-bottom: 20px; text-align: center;">
             <div style="display: flex; align-items: center; gap: 15px; justify-content: center; width: 100%;">
                 <img id="tp-logo" src="" style="width: 75px; height: 75px; object-fit: contain; display: none;">
@@ -369,26 +421,22 @@
                     <h3 id="tp-group" style="color: #66b3ff; margin-top: 5px; margin-bottom: 0;">Grupo X</h3>
                 </div>
             </div>
-            
             <div style="width: 100%; max-width: 300px; background: var(--panel-bg); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
                 <div style="font-size: 1.1em; color: var(--text-muted);">Posição Geral: <strong id="tp-pos" style="color:#ffaa00; font-size: 1.4em;">0º</strong></div>
             </div>
-
             <div id="tp-next-match-container" style="width: 100%;"></div>
         </div>
 
         <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
 
         <h3 style="color: #fff; margin-bottom: 15px; letter-spacing: 2px;">JOGADORES</h3>
-        <div id="tp-players-cards-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 40px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);">
-            </div>
+        <div id="tp-players-cards-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 40px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);"></div>
 
         <h3 style="margin-top: 25px; border-bottom: 1px solid #333; padding-bottom: 10px;">DESEMPENHO DA EQUIPE</h3>
         <div class="filters">
             <label style="color: var(--text-muted); font-weight: bold;">Estatísticas do Período:</label>
             <div class="day-filters" id="tp-day-filters"></div>
         </div>
-        
         <div class="grid-cards" id="tp-stats-container"></div>
 
         <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">DESEMPENHO CONTRA GRUPOS OPONENTES</h3>
@@ -396,143 +444,74 @@
             <label style="color: var(--text-muted); font-weight: bold;">Selecionar Grupo Oponente:</label>
             <select id="tp-opp-group" onchange="renderTeamConfrontation()"></select>
         </div>
-        
         <div class="grid-cards" id="tp-confrontation-result"></div>
         
         <div style="text-align: right; margin-top: -10px; margin-bottom: 30px;">
             <button class="btn-action" onclick="openConfrontationModal()" id="btn-confrontation">Ver Ranking do Confronto Completo</button>
         </div>
 
-  <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">Classificação Interna</h3>
+        <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">Classificação Interna</h3>
         <div class="table-container">
             <table id="table-team-players">
-<thead>
+                <thead>
                     <tr>
                         <th onclick="sortTable('table-team-players', 0, false)">Jog ↕</th>
-                        <th onclick="sortTable('table-team-players', 1, true)" title="Abates">
-                            <span class="full-name-desktop">Abates</span><span class="short-name-mobile">A</span> ↕
-                        </th>
-                        <th onclick="sortTable('table-team-players', 2, true)" title="Dano">
-                            <span class="full-name-desktop">Dano</span><span class="short-name-mobile">D</span> ↕
-                        </th>
-                        <th onclick="sortTable('table-team-players', 3, true)" title="Assistências">
-                            <span class="full-name-desktop">Assistências</span><span class="short-name-mobile">AS</span> ↕
-                        </th>
-                        <th onclick="sortTable('table-team-players', 4, true)" title="Quedas">
-                            <span class="full-name-desktop">Quedas</span><span class="short-name-mobile">Q</span> ↕
-                        </th>
-                        <th onclick="sortTable('table-team-players', 5, true)" title="MVPs">
-                            <span class="full-name-desktop">MVPs</span><span class="short-name-mobile">M</span> ↕
-                        </th>
+                        <th onclick="sortTable('table-team-players', 1, true)" title="Abates"><span class="full-name-desktop">Abates</span><span class="short-name-mobile">A</span> ↕</th>
+                        <th onclick="sortTable('table-team-players', 2, true)" title="Dano"><span class="full-name-desktop">Dano</span><span class="short-name-mobile">D</span> ↕</th>
+                        <th onclick="sortTable('table-team-players', 3, true)" title="Assistências"><span class="full-name-desktop">Assistências</span><span class="short-name-mobile">AS</span> ↕</th>
+                        <th onclick="sortTable('table-team-players', 4, true)" title="Quedas"><span class="full-name-desktop">Quedas</span><span class="short-name-mobile">Q</span> ↕</th>
+                        <th onclick="sortTable('table-team-players', 5, true)" title="MVPs"><span class="full-name-desktop">MVPs</span><span class="short-name-mobile">M</span> ↕</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
-</div>
+    </div>
 
-<div id="selection-wb" class="page">
+    <div id="selection-wb" class="page">
         <div style="text-align: center; margin-bottom: 30px;">
             <h1 style="font-size: 3em; color: #ff0000; text-shadow: 0 0 15px rgba(255,0,0,0.5); margin-bottom: 10px;">SELEÇÃO DA SEMANA</h1>
             <p style="color: var(--text-muted);">Os brabos que dominaram o servidor nesta semana.</p>
         </div>
-
-        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap;" id="selection-week-filters">
-            </div>
-
-        <div id="selection-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding-bottom: 50px;">
-            </div>
+        <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 40px; flex-wrap: wrap;" id="selection-week-filters"></div>
+        <div id="selection-container" class="selection-grid"></div>
     </div>
 
-    <!-- PAGE: PLAYER PROFILE -->
-<div id="player-profile" class="page">
+    <div id="player-profile" class="page">
         <button class="btn-back" onclick="navigate('players')">← Voltar</button>
-        
         <div class="player-profile-header" style="align-items: flex-start;">
             <div>
                 <h1 id="pp-name" style="margin: 0; font-size: 2.5em; text-transform: uppercase;">NOME DO JOGADOR</h1>
                 <h3 id="pp-team" style="color: #66b3ff; margin-top: 5px; margin-bottom: 15px; cursor: pointer; display: inline-block;">Equipe X</h3>
-                
-                <div id="pp-insta-container"></div>
             </div>
             <div style="text-align: right;">
-                <div style="font-size: 1.2em; color: var(--text-muted);">Quedas Jogadas: <strong id="pp-quedas" style="color:#fff;">0</strong></div>
-            </div>
-        </div>
- <h2 id="pp-name" style="color:#66b3ff"></h2>
-<p id="pp-team" class="clickable" onclick="..." style="color:#aaa"></p>
-
-<div id="player-overall-card"></div>
-        <div class="grid-cards">
-            <div class="card">
-                <div class="card-top-border"></div><h3>Abates Totais</h3><div class="value" id="pp-tot-kills">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-kills" style="color:#fff;">0.00</span> /queda</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-kills">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>Recorde Abates (Dia)</h3><div class="value" id="pp-record">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Em um único dia</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-record">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>Dano Total</h3><div class="value" id="pp-tot-dmg">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-dmg" style="color:#fff;">0.00</span> /queda</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-dmg">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>Assistências</h3><div class="value" id="pp-tot-assists">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-assists" style="color:#fff;">0.00</span> /queda</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-assists">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>MVPs Recebidos</h3><div class="value" id="pp-tot-mvps">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">&nbsp;</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-mvps">#0</span></div>
-            </div>
-        </div>
-    </div>
-
-<div id="player-profile" class="page">
-        <button class="btn-back" onclick="navigate('players')">← Voltar</button>
-        <div class="player-profile-header">
-            <div>
-                <h1 id="pp-name" style="margin: 0; font-size: 2.5em; text-transform: uppercase;">NOME DO JOGADOR</h1>
-                <h3 id="pp-team" style="color: #66b3ff; margin-top: 5px; cursor: pointer; display: inline-block;">Equipe X</h3>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: 1.2em; color: var(--text-muted);">Quedas Jogadas: <strong id="pp-quedas" style="color:#fff;">0</strong></div>
+                <div style="font-size: 1.2em; color: var(--text-muted);">Quedas Atuais: <strong id="pp-quedas" style="color:#fff;">0</strong></div>
             </div>
         </div>
 
         <div id="player-overall-card"></div>
         
+        <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">Desempenho Atual (WB 2026 S1)</h3>
         <div class="grid-cards">
-            <div class="card">
-                <div class="card-top-border"></div><h3>Abates Totais</h3><div class="value" id="pp-tot-kills">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-kills" style="color:#fff;">0.00</span> /queda</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-kills">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>Recorde Abates (Dia)</h3><div class="value" id="pp-record">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Em um único dia</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-record">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>Dano Total</h3><div class="value" id="pp-tot-dmg">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-dmg" style="color:#fff;">0.00</span> /queda</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-dmg">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>Assistências</h3><div class="value" id="pp-tot-assists">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-assists" style="color:#fff;">0.00</span> /queda</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-assists">#0</span></div>
-            </div>
-            <div class="card">
-                <div class="card-top-border"></div><h3>MVPs Recebidos</h3><div class="value" id="pp-tot-mvps">0</div>
-                <div style="color:#888;font-size:0.85em;margin-top:5px;">&nbsp;</div>
-                <div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-mvps">#0</span></div>
-            </div>
+            <div class="card"><div class="card-top-border"></div><h3>Abates Totais</h3><div class="value" id="pp-tot-kills">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-kills" style="color:#fff;">0.00</span> /queda</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-kills">#0</span></div></div>
+            <div class="card"><div class="card-top-border"></div><h3>Recorde Abates</h3><div class="value" id="pp-record">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Em um único dia</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-record">#0</span></div></div>
+            <div class="card"><div class="card-top-border"></div><h3>Dano Total</h3><div class="value" id="pp-tot-dmg">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-dmg" style="color:#fff;">0.00</span> /queda</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-dmg">#0</span></div></div>
+            <div class="card"><div class="card-top-border"></div><h3>Assistências</h3><div class="value" id="pp-tot-assists">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">Média: <span id="pp-avg-assists" style="color:#fff;">0.00</span> /queda</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-assists">#0</span></div></div>
+            <div class="card"><div class="card-top-border"></div><h3>MVPs Recebidos</h3><div class="value" id="pp-tot-mvps">0</div><div style="color:#888;font-size:0.85em;margin-top:5px;">&nbsp;</div><div style="margin-top: 10px;">Posição: <span class="rank-badge" id="pp-rank-mvps">#0</span></div></div>
         </div>
+
+        <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px; color: var(--accent);">Desempenho Histórico (All-Time)</h3>
+        <div class="grid-cards">
+            <div class="card" style="border-left: 4px solid var(--accent);"><div class="card-top-border"></div><h3>Kills Históricas</h3><div class="value" id="pp-hist-kills" style="color:#fff">0</div></div>
+            <div class="card"><div class="card-top-border"></div><h3>Quedas Jogadas</h3><div class="value" id="pp-hist-quedas">0</div></div>
+            <div class="card"><div class="card-top-border"></div><h3>Média Histórica</h3><div class="value" id="pp-hist-avg">0.00</div></div>
+            <div class="card"><div class="card-top-border"></div><h3>Títulos Coletivos</h3><div class="value" id="pp-hist-col" style="color:#ffaa00">0</div></div>
+            <div class="card"><div class="card-top-border"></div><h3>Títulos Individuais</h3><div class="value" id="pp-hist-ind" style="color:#ffaa00">0</div></div>
+        </div>
+
+        <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px; color: #ffd700;">Galeria de Troféus</h3>
+        <div id="pp-trophies-container" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 40px; background: rgba(255,215,0,0.02); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,215,0,0.1);">
+            </div>
     </div>
 
     <div id="staff-profile" class="page">
@@ -817,6 +796,42 @@ let currentSelectionWeek = "5";
 const dbSocials = {
     "": "ff", "MT7": "fluxo_mt7ffx", "LUUUKING": "luuuking_", "General!": "generaalxx", "Yago": "yagoexe_" , "PUTSGRILO": "putsgrilo10",
     // Adicione os outros nomes conforme necessário
+};
+
+const titlesData = {
+    coletivos: [
+        { event: "WB 2025 S2", type: "Campeão", team: "FLUXO W7M", teamImg: "Fluxo 2.png", players: ["MT7", "Bops", "BuTziN", "Giuh", "Proxx7"], staff: ["LUUUKING", "Renan"] },
+        { event: "WB 2025 S1", type: "Campeão", team: "LOS", teamImg: "Los.png", players: ["mtsexy.", "General!", "NANDO9", "Rigby245", "Raone7"], staff: ["LIPÃO", "Jaya"] },
+        { event: "WB 2024", type: "Campeão", team: "FLUXO W7M", teamImg: "Fluxo 2.png", players: ["MT7", "Bops", "BuTziN", "Giuh"], staff: ["LUUUKING", "Renan"] },
+        { event: "LBFF 9", type: "Campeão", team: "LOUD", teamImg: "loud 2.png", players: ["Mexico", "Noda", "Lost21", "Cauan7", "Kroonos"], staff: ["Frois", "Frank"] },
+        { event: "LBFF 8", type: "Campeão", team: "VIVO KEYD", teamImg: "keyd.webp", players: ["MODESTIA", "General!", "DeadGOD", "NANDO9", "Ghost7"], staff: ["Wanheda"] },
+        { event: "LBFF 7", type: "Campeão", team: "LOUD", teamImg: "loud 2.png", players: ["Will", "Noda", "Lost21", "Cauan7", "Kroonos"], staff: ["Frois", "Frank"] },
+        { event: "LBFF 6", type: "Campeão", team: "B4", teamImg: "b4.webp", players: ["Lobato", "Yago", "PROZIN", "Ruan", "Lapa7", "João7"], staff: ["Machado"] },
+        { event: "LBFF 5", type: "Campeão", team: "VIVO KEYD", teamImg: "keyd.webp", players: ["MODESTIA", "KBÇÃO", "DeadGOD", "NANDO9", "General!"], staff: ["Stark"] },
+        { event: "LBFF 4", type: "Campeão", team: "FLUXO", teamImg: "Fluxo 2.png", players: ["Nobru", "Syaz", "GØDKILL", "Fac", "JapaBKR"], staff: ["K9"] },
+        { event: "LBFF 3", type: "Campeão", team: "SS ESPORTS", teamImg: "ss esports.webp", players: ["Taami", "Antunes22", "Cauan7", "Aranha", "LEAL7", "Pão7"], staff: ["Metal"] },
+        { event: "LBFF 1", type: "Campeão", team: "TEAM LIQUID", teamImg: "tl.webp", players: ["LUUUKING", "Boss", "Martins", "LukasTD", "Zenac"], staff: ["Matheus Souto"] }
+    ],
+    individuais: [
+        { event: "WB 2025 S2", type: "MVP Geral", team: "FLUXO", teamImg: "Fluxo 2.png", player: "MT7" },
+        { event: "WB 2025 S2", type: "Revelação", team: "CRVG", teamImg: "Vasco.png", player: "Yann7awp" },
+        { event: "WB 2025 S1", type: "MVP Geral", team: "FLUXO", teamImg: "Fluxo 2.png", player: "MT7" },
+        { event: "WB 2025 S1", type: "Revelação", team: "TEAM SOLID", teamImg: "team solid.webp", player: "BZP" },
+        { event: "WB 2024", type: "MVP Final", team: "FLUXO", teamImg: "Fluxo 2.png", player: "Bops" },
+        { event: "WB 2024", type: "MVP Grupos", team: "LOUD", teamImg: "loud 2.png", player: "Yago" },
+        { event: "LBFF 9", type: "MVP Final", team: "LOUD", teamImg: "loud 2.png", player: "Mexico" },
+        { event: "LBFF 9", type: "MVP Grupos", team: "MAGIC SQUAD", teamImg: "magic squad.webp", player: "Yago" },
+        { event: "LBFF 8", type: "MVP Final", team: "VIVO KEYD", teamImg: "keyd.webp", player: "NANDO9" },
+        { event: "LBFF 8", type: "MVP Grupos/Revelação", team: "TSM", teamImg: "tsm.webp", player: "Raone7" },
+        { event: "LBFF 7", type: "MVP Final", team: "LOUD", teamImg: "loud 2.png", player: "Lost21" },
+        { event: "LBFF 7", type: "MVP Grupos", team: "B4", teamImg: "b4.webp", player: "Yago" },
+        { event: "LBFF 7", type: "Revelação", team: "CRUZEIRO", teamImg: "cruzeiro.webp", player: "TRAP" },
+        { event: "LBFF 6", type: "MVP Geral", team: "SS ESPORTS", teamImg: "ss esports.webp", player: "Mts007" },
+        { event: "LBFF 5", type: "MVP Geral", team: "FLUXO", teamImg: "Fluxo 2.png", player: "Syaz" },
+        { event: "LBFF 4", type: "MVP Geral", team: "SANTOS", teamImg: "santos.webp", player: "Ruan" },
+        { event: "LBFF 3", type: "MVP Geral", team: "SS ESPORTS", teamImg: "ss esports.webp", player: "Cauan7" },
+        { event: "LBFF 1", type: "MVP Geral", team: "TEAM LIQUID", teamImg: "tl.webp", player: "JapaBKR" }
+    ]
 };
 
 const lbffData = {
@@ -2178,6 +2193,23 @@ function openStaffProfile(staffName) {
     navigate('staff-profile');
 }
 
+function checkNameMatch(n1, n2) {
+    if(!n1 || !n2) return false;
+    let lower1 = n1.toLowerCase(), lower2 = n2.toLowerCase();
+    if(lower1 === lower2) return true;
+    
+    let alias1 = historicalAliases[n1] ? historicalAliases[n1].toLowerCase() : null;
+    let alias2 = historicalAliases[n2] ? historicalAliases[n2].toLowerCase() : null;
+    
+    if (alias1 === lower2 || alias2 === lower1) return true;
+    
+    for(let key in historicalAliases) {
+        if(key.toLowerCase() === lower1 && historicalAliases[key].toLowerCase() === lower2) return true;
+        if(key.toLowerCase() === lower2 && historicalAliases[key].toLowerCase() === lower1) return true;
+    }
+    return false;
+}
+
 // 1. Constrói os botões de filtro de Edição
 function buildEditionFilters() {
     let container = document.getElementById('edition-filters');
@@ -3323,11 +3355,12 @@ function openPlayerProfile(playerName) {
     let p = db.players.find(x => x.jogador === playerName);
     if (!p) return;
 
-    // Preenchimento das estatísticas básicas
+    // --- 1. ESTATÍSTICAS ATUAIS ---
     document.getElementById('pp-name').innerText = p.jogador;
     document.getElementById('pp-team').innerText = p.equipe;
     document.getElementById('pp-team').onclick = () => openTeamProfile(p.equipe);
     document.getElementById('pp-quedas').innerText = p.quedas || 0;
+    
     document.getElementById('pp-tot-kills').innerText = p.abates || 0;
     document.getElementById('pp-avg-kills').innerText = ((p.abates || 0) / (p.quedas || 1)).toFixed(2);
     document.getElementById('pp-rank-kills').innerText = `#${p.rankKills || 0}`;
@@ -3348,11 +3381,66 @@ function openPlayerProfile(playerName) {
     document.getElementById('pp-tot-mvps').innerText = p.mvp || 0;
     document.getElementById('pp-rank-mvps').innerText = `#${p.rankMvp || 0}`;
 
-    // Limpa o container do cabeçalho (caso tenha sobrado algo da versão anterior)
-    let oldInstaContainer = document.getElementById('pp-insta-container');
-    if(oldInstaContainer) oldInstaContainer.innerHTML = '';
+    // --- 2. ESTATÍSTICAS HISTÓRICAS (LENDO DIRETO DO TOP 100) ---
+    let histKills = 0;
+    let histQuedas = 0;
+    
+    let histRecord = histData.find(h => checkNameMatch(h.n, p.jogador));
+    
+    if (histRecord) {
+        histKills = histRecord.k;
+        histQuedas = histRecord.q;
+    } else {
+        for (let key in lbffData) {
+            if (checkNameMatch(key, p.jogador)) {
+                for (let ed in lbffData[key]) {
+                    histKills += lbffData[key][ed].k;
+                    histQuedas += lbffData[key][ed].q;
+                }
+            }
+        }
+    }
+    
+    // Soma a base histórica com o desempenho ATUAL
+    histKills += (p.abates || 0);
+    histQuedas += (p.quedas || 0);
 
-// --- PREPARAÇÃO DO BOTÃO DO INSTAGRAM ---
+    document.getElementById('pp-hist-kills').innerText = histKills;
+    document.getElementById('pp-hist-quedas').innerText = histQuedas;
+    document.getElementById('pp-hist-avg').innerText = histQuedas > 0 ? (histKills / histQuedas).toFixed(2) : "0.00";
+
+  // --- 3. GALERIA DE TROFÉUS E TÍTULOS ---
+    let colTitles = titlesData.coletivos.filter(t => t.players.some(pl => checkNameMatch(pl, p.jogador)));
+    let indTitles = titlesData.individuais.filter(t => checkNameMatch(t.player, p.jogador));
+
+    document.getElementById('pp-hist-col').innerText = colTitles.length;
+    document.getElementById('pp-hist-ind').innerText = indTitles.length;
+
+    let allTitles = [...colTitles, ...indTitles];
+    let trophiesHtml = '';
+
+    if(allTitles.length === 0) {
+        trophiesHtml = '<div style="color:#888; text-align:center; width:100%; padding:20px;">Nenhum título oficial registrado na base de dados.</div>';
+    } else {
+        trophiesHtml = allTitles.map(t => {
+            // Define a logo do torneio automaticamente
+            let tournamentImg = t.event.includes("WB") ? "wb.webp" : "lbff.webp";
+            
+            // Layout do time que estava quando ganhou
+            let teamHtml = t.team ? `<div class="trophy-team"><img src="${t.teamImg}"> ${t.team}</div>` : '';
+            
+            return `
+            <div class="trophy-card">
+                <img src="${tournamentImg}" class="trophy-img" alt="${t.type}">
+                <div class="event">${t.event}</div>
+                <div class="type">${t.type}</div>
+                ${teamHtml}
+            </div>`;
+        }).join('');
+    }
+    document.getElementById('pp-trophies-container').innerHTML = trophiesHtml;;
+
+    // --- 4. RENDERIZAÇÃO DA CARTINHA GERAL ---
     let insta = dbSocials[p.jogador];
     let instaButtonHtml = insta ? `
         <div style="margin-top: 15px;">
@@ -3362,7 +3450,6 @@ function openPlayerProfile(playerName) {
             </a>
         </div>` : '';
 
-    // Prepara dados e renderiza a Cartinha com o Instagram embaixo da especialidade
     let ovr = calculateOverall(p);
     let role = playerRoles[p.jogador] || "RUSH";
     let accentColor = "#cd7f32"; 
