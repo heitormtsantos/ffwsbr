@@ -74,6 +74,86 @@
     }
 }
     
+/* --- BARRA DE PESQUISA GLOBAL (CORRIGIDA) --- */
+    .search-wrapper {
+        position: relative;
+        padding: 12px 20px;
+        background: #0a0a0c;
+        display: flex;
+        justify-content: center;
+        border-bottom: 1px solid var(--border);
+        z-index: 1001; /* Aumentado para ficar acima de tudo */
+        transition: all 0.3s ease-in-out;
+    }
+    
+    #global-search {
+        width: 100%;
+        max-width: 600px;
+        padding: 12px 25px;
+        border-radius: 30px;
+        border: 1px solid var(--border);
+        background: #151518;
+        color: #fff;
+        outline: none;
+        font-size: 0.95em;
+        transition: 0.3s;
+    }
+    
+    #global-search:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 12px rgba(255, 170, 0, 0.2);
+    }
+
+    .search-results-dropdown {
+        position: absolute;
+        top: 100%; /* Cola exatamente abaixo da barra */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 95%;
+        max-width: 600px;
+        background: var(--panel-bg);
+        border: 1px solid var(--accent);
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        max-height: 400px;
+        overflow-y: auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+        display: none;
+        z-index: 9999 !important; /* Força sobreposição total */
+    }
+
+    .search-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid var(--border); transition: 0.2s; }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:hover { background: var(--panel-hover); }
+    .search-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; }
+
+    #search-btn { background: transparent; color: var(--accent); border: none; font-size: 1.3em; cursor: pointer; padding: 5px 10px; }
+
+    @media (min-width: 769px) {
+        #search-btn { display: none; }
+    }
+
+    /* Regras exclusivas para o Mobile */
+    @media (max-width: 768px) {
+        .search-wrapper { 
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+            overflow: hidden; /* Mantém hidden enquanto fechado */
+            border-bottom: none;
+        }
+        
+        .search-wrapper.active {
+            max-height: 100px; 
+            padding-top: 12px;
+            padding-bottom: 12px;
+            opacity: 1;
+            overflow: visible !important; /* ESSENCIAL: Permite que os resultados saiam para fora */
+            border-bottom: 1px solid var(--border);
+        }
+    }
+
     /* Tabelas */
     .table-container { overflow-x: auto; background-color: var(--panel-bg); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 30px; }
     table { width: 100%; border-collapse: collapse; white-space: nowrap; }
@@ -312,14 +392,23 @@
 
 <nav>
     <div class="nav-header-mobile">
-        <span>FFWS BRASIL 26 - NAKATAFF</span>
-        <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+        <span>FFWS BRASIL 26</span>
+        <div class="actions" style="display: flex; align-items: center; gap: 5px;">
+            <button id="search-btn" onclick="toggleMobileSearch()">🔍</button>
+            <button id="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
     </div>
+    
+    <div class="search-wrapper" id="search-wrapper">
+        <input type="text" id="global-search" placeholder="Pesquisar jogador ou equipe..." onkeyup="handleGlobalSearch()" autocomplete="off">
+        <div id="search-results" class="search-results-dropdown"></div>
+    </div>
+
     <div class="nav-links" id="nav-links">
         <button onclick="navigate('teams')" class="active" id="nav-teams">Classificação Times</button>
         <button onclick="navigate('players')" id="nav-players">Classificação Jogadores</button>
         <button onclick="navigate('teams-list')" id="nav-teams-list">Equipes</button>
-        <button onclick="navigate('selection-wb')">Seleção</button>
+        <button onclick="navigate('selection-wb')" id="nav-selection-wb">Seleção</button>
         <button onclick="navigate('records-ind')" id="nav-records-ind">Recordes</button>
         <button onclick="navigate('maps')" id="nav-maps">Mapas</button>
         <button onclick="navigate('compare')" id="nav-compare">Comparar 1v1</button>
@@ -784,7 +873,7 @@ let currentSelectionWeek = "5";
 
 // Mapeamento de Instagram (Exemplo: adicione o @ de cada um aqui)
 const dbSocials = {
-    "": "ff", "MT7": "fluxo_mt7ffx", "LUUUKING": "luuuking_", "General!": "generaalxx", "Yago": "yagoexe_" , "PUTSGRILO": "putsgrilo10",
+    "Bops": "bopsff", "MT7": "fluxo_mt7ffx", "LUUUKING": "luuuking_", "General!": "generaalxx", "Yago": "yagoexe_" , "PUTSGRILO": "putsgrilo10",
     // Adicione os outros nomes conforme necessário
 };
 
@@ -892,7 +981,7 @@ const lbffData = {
     "Rood": { "LBFF 1": {k:14, q:21} },
     "Thiago": { "LBFF 1": {k:14, q:22} },
     "SÓPAPAI": { "LBFF 1": {k:9, q:18} },
-    "Soares": { "LBFF 1": {k:8, q:12} },
+    "Soaress": { "LBFF 1": {k:8, q:12} },
     "Pedro7": { "LBFF 1": {k:7, q:22} },
     "Helden": { "LBFF 1": {k:3, q:8} },
     "SALDANHA": { "LBFF 1": {k:3, q:12} },
@@ -1180,6 +1269,12 @@ const playerCaptains = {
     "Bops": true,
     "General!": true,
     "TRAP": true,
+    "LYON": true,
+    "Cauan7": true,
+    "GUS": true,
+    "Stark": true,
+    "lippe!": true,
+    "BLACK02": true,
 };
 
 const playerRoles = {
@@ -2141,6 +2236,117 @@ function navigate(pageId) {
         document.getElementById('nav-links').classList.remove('active');
     }
 }
+
+// ==========================================
+    // --- LÓGICA DA PESQUISA GLOBAL ---
+    // ==========================================
+
+    function handleGlobalSearch() {
+        let input = document.getElementById('global-search').value.toLowerCase();
+        let resultsBox = document.getElementById('search-results');
+        
+        // Só começa a buscar se o usuário digitar 2 letras ou mais
+        if(input.length < 2) {
+            resultsBox.style.display = 'none';
+            return;
+        }
+
+        // Filtra Jogadores (pelo Nick) e Equipes (pelo Nome ou Sigla)
+        let foundPlayers = db.players.filter(p => p.jogador.toLowerCase().includes(input));
+        let foundTeams = db.teams.filter(t => t.equipe.toLowerCase().includes(input) || (shortNames[t.equipe] && shortNames[t.equipe].toLowerCase().includes(input)));
+        
+        if(foundPlayers.length === 0 && foundTeams.length === 0) {
+            resultsBox.innerHTML = '<div style="padding:20px; color:#888; text-align:center; font-weight:bold;">Nenhum resultado encontrado.</div>';
+            resultsBox.style.display = 'block';
+            return;
+        }
+
+        let html = '';
+        
+        // Desenha os cards das Equipes
+        foundTeams.forEach(t => {
+            let logoSrc = logos[t.equipe] || '';
+            html += `
+            <div class="search-item" onclick="selectSearchResult('team', '${t.equipe}')">
+                <img src="${logoSrc}">
+                <div class="search-item-info">
+                    <span class="search-item-name">${t.equipe}</span>
+                    <span class="search-item-sub">Página da Equipe</span>
+                </div>
+            </div>`;
+        });
+
+        // Desenha os cards dos Jogadores
+        foundPlayers.forEach(p => {
+            let pPhoto = playerPhotos[p.jogador] || 'silhueta.png';
+            html += `
+            <div class="search-item" onclick="selectSearchResult('player', '${p.jogador}')">
+                <img src="${pPhoto}">
+                <div class="search-item-info">
+                    <span class="search-item-name">${p.jogador}</span>
+                    <span class="search-item-sub">${p.equipe}</span>
+                </div>
+            </div>`;
+        });
+
+        resultsBox.innerHTML = html;
+        resultsBox.style.display = 'block';
+    }
+
+    // Ação ao clicar em um resultado
+    function selectSearchResult(type, name) {
+        document.getElementById('search-results').style.display = 'none';
+        document.getElementById('global-search').value = ''; // Limpa a barra
+        
+        if(type === 'team') {
+            openTeamProfile(name);
+        } else {
+            openPlayerProfile(name);
+        }
+    }
+
+    // Função para abrir/fechar a barra de pesquisa no celular
+    function toggleMobileSearch() {
+        let wrapper = document.getElementById('search-wrapper');
+        wrapper.classList.toggle('active');
+        
+        // Se abriu, já coloca o teclado focado pra digitar
+        if(wrapper.classList.contains('active')) {
+            document.getElementById('global-search').focus();
+            document.getElementById('nav-links').classList.remove('active'); // Fecha o outro menu se tiver aberto
+        } else {
+            // Se fechou, limpa o texto digitado e some com os resultados
+            document.getElementById('global-search').value = '';
+            document.getElementById('search-results').style.display = 'none';
+        }
+    }
+
+    // Esconder o menu de pesquisa se o usuário clicar em qualquer lugar fora dele
+    document.addEventListener('click', function(e) {
+        let searchWrapper = document.querySelector('.search-wrapper');
+        if (searchWrapper && !searchWrapper.contains(e.target)) {
+            document.getElementById('search-results').style.display = 'none';
+        }
+    });
+
+    // Função para abrir/fechar a barra de pesquisa no celular
+    function toggleMobileSearch() {
+        let wrapper = document.getElementById('search-wrapper');
+        
+        // O "toggle" é a mágica: se não tem a classe 'active', ele coloca. Se já tem, ele tira.
+        wrapper.classList.toggle('active');
+        
+        // Ações adicionais
+        if(wrapper.classList.contains('active')) {
+            // Se abriu, foca no campo pra digitar
+            document.getElementById('global-search').focus();
+            document.getElementById('nav-links').classList.remove('active'); 
+        } else {
+            // Se fechou, limpa o que tava escrito
+            document.getElementById('global-search').value = '';
+            document.getElementById('search-results').style.display = 'none';
+        }
+    }
 
 function openStaffProfile(staffName) {
     let s = dbStaff.find(x => x.nome === staffName);
