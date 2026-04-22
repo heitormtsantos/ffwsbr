@@ -4630,7 +4630,7 @@ function renderTeamProfileStats() {
 
     let cur = allTeamsStats.find(x => x.equipe === tName);
 
-    // 1. Renderiza Melhor/Pior Dia (ACIMA do desempenho)
+    // 1. Renderiza Melhor/Pior Dia
     let bestWorstContainer = document.getElementById('tp-best-worst-container');
     if(bestWorstContainer) {
         let htmlBW = '';
@@ -4651,13 +4651,11 @@ function renderTeamProfileStats() {
         bestWorstContainer.innerHTML = htmlBW;
     }
 
-// 2. Renderiza Grade de Estatísticas
+    // 2. Renderiza Grade de Estatísticas (AS DUAS FILEIRAS DE 5 ITENS)
     let container = document.getElementById('tp-stats-container');
     if(container && cur) {
-        // ESSA É A LINHA MÁGICA QUE FALTAVA PARA EMPILHAR AS DUAS FILEIRAS:
         container.style.display = "block"; 
-        
-        let gridCSS = window.innerWidth > 1000 ? "grid-template-columns: repeat(5, 1fr);" : "grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));";
+        let gridCSS = window.innerWidth > 1000 ? "grid-template-columns: repeat(5, 1fr);" : "grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));";
 
         container.innerHTML = `
             <div style="display: grid; ${gridCSS} gap: 15px; margin-bottom: 15px;">
@@ -4677,30 +4675,53 @@ function renderTeamProfileStats() {
             </div>`;
     }
 
-    // 3. Renderiza Jogadores e Staff (Aproveita a lógica que você já tinha)
+    // 3. Lógica de Jogadores e Staff (COM ABA DE EX-JOGADORES)
     let pRaw = db.playerDaily.filter(p => p.equipe === tName);
     if (selectedTpDays.length > 0) pRaw = pRaw.filter(p => selectedTpDays.includes(String(p.dia)));
+    
     let agg = {};
     pRaw.forEach(row => {
         if (!agg[row.jogador]) agg[row.jogador] = { jogador: row.jogador, equipe: row.equipe, quedas: 0, abates: 0, dano: 0, assists: 0, mvp: 0 };
         agg[row.jogador].quedas += row.quedas; agg[row.jogador].abates += row.abates; agg[row.jogador].dano += row.dano; agg[row.jogador].assists += row.assists; agg[row.jogador].mvp += (row.mvp || 0);
     });
-    let players = Object.values(agg);
+
+    let playersList = Object.values(agg).map(pAgg => {
+        let dbP = db.players.find(x => x.jogador === pAgg.jogador);
+        pAgg.isEx = dbP ? (dbP.isEx || false) : false;
+        return pAgg;
+    });
+
+    let ativos = playersList.filter(p => !p.isEx).sort((a,b) => b.abates - a.abates);
+    let inativos = playersList.filter(p => p.isEx).sort((a,b) => b.abates - a.abates);
 
     let cardsContainer = document.getElementById('tp-players-cards-container');
-    let staffList = dbStaff.filter(s => s.equipe === tName);
-    let htmlPlayers = players.sort((a,b) => b.abates - a.abates).map(p => createPlayerCardHTML(p, 0.85)).join('');
-    let htmlStaff = staffList.map(s => `<div onclick="openStaffProfile('${s.nome}')" style="cursor: pointer; background: #26262b; border: 1px solid var(--border); padding: 10px; border-radius: 10px; min-width: 140px; text-align: center;"><div style="color: #fff; font-size: 0.9em; font-weight: bold;">${s.nome}</div><div style="color: var(--accent); font-size: 0.7em; text-transform: uppercase;">${s.cargo}</div></div>`).join('');
-    
-    if(cardsContainer) {
-        cardsContainer.innerHTML = htmlPlayers + (htmlStaff ? `<div style="width: 100%; display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap;">${htmlStaff}</div>` : '');
+    if (cardsContainer) {
+        let html = ativos.map(p => createPlayerCardHTML(p, 0.85)).join('');
+        
+        if (inativos.length > 0) {
+            html += `
+            <div style="width: 100%; text-align: center; margin-top: 15px;">
+                <button class="btn-action" onclick="let c = document.getElementById('ex-players-div'); if(c.style.display==='none'){c.style.display='flex'; this.innerText='Ocultar Ex-Jogadores';}else{c.style.display='none'; this.innerText='Ver Ex-Jogadores';}" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 0.85em; padding: 8px 15px;">Ver Ex-Jogadores</button>
+            </div>
+            <div id="ex-players-div" style="display: none; width: 100%; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; padding-top: 25px; border-top: 1px dashed #333;">
+                ${inativos.map(p => createPlayerCardHTML(p, 0.85)).join('')}
+            </div>`;
+        }
+
+        let staffList = dbStaff.filter(s => s.equipe === tName);
+        if (staffList.length > 0) {
+            html += `<div style="width: 100%; display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                ${staffList.map(s => `<div onclick="openStaffProfile('${s.nome}')" style="cursor: pointer; background: #26262b; border: 1px solid var(--border); padding: 10px; border-radius: 10px; min-width: 140px; text-align: center;"><div style="color: #fff; font-size: 0.9em; font-weight: bold;">${s.nome}</div><div style="color: var(--accent); font-size: 0.7em; text-transform: uppercase;">${s.cargo}</div></div>`).join('')}
+            </div>`;
+        }
+        cardsContainer.innerHTML = html;
     }
 
-    // 4. TABELA DE CLASSIFICAÇÃO INTERNA
+    // 4. Classificação Interna
     let tbody = document.querySelector('#table-team-players tbody');
-    tbody.innerHTML = players.sort((a,b) => b.abates - a.abates).map(p => `<tr><td style="text-align:left;"><span class="clickable" onclick="openPlayerProfile('${p.jogador}')">${p.jogador}</span></td><td style="color:var(--accent); font-weight:bold;">${p.abates}</td><td>${p.dano}</td><td>${p.assists}</td><td>${p.quedas}</td><td>${p.mvp || 0}</td></tr>`).join('');
+    tbody.innerHTML = playersList.sort((a,b) => b.abates - a.abates).map(p => `<tr><td style="text-align:left;"><span class="clickable" onclick="openPlayerProfile('${p.jogador}')">${p.jogador}</span></td><td style="color:var(--accent); font-weight:bold;">${p.abates}</td><td>${p.dano}</td><td>${p.assists}</td><td>${p.quedas}</td><td>${p.mvp || 0}</td></tr>`).join('');
 
-    // 5. NOVA SEÇÃO: GALERIA DE TROFÉUS COLETIVOS (Fim da página)
+    // 5. Galeria de Troféus
     renderTeamTrophies(tName);
 }
 
