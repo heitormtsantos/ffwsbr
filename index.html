@@ -545,61 +545,68 @@
     </div>
 
  <div id="team-profile" class="page">
-        <button class="btn-back" onclick="navigate('teams-list')">← Voltar para Equipes</button>
-        <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; margin-bottom: 20px; text-align: center;">
-            <div style="display: flex; align-items: center; gap: 15px; justify-content: center; width: 100%;">
-                <img id="tp-logo" src="" style="width: 75px; height: 75px; object-fit: contain; display: none;">
-                <div style="text-align: left;">
-                    <h1 id="tp-name" style="margin: 0; font-size: 2.2em; text-transform: uppercase; line-height: 1;">NOME</h1>
-                    <h3 id="tp-group" style="color: #66b3ff; margin-top: 5px; margin-bottom: 0;">Grupo X</h3>
-                </div>
+    <button class="btn-back" onclick="navigate('teams-list')">← Voltar para Equipes</button>
+    
+    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; margin-bottom: 20px; text-align: center;">
+        <div style="display: flex; align-items: center; gap: 15px; justify-content: center; width: 100%;">
+            <img id="tp-logo" src="" style="width: 75px; height: 75px; object-fit: contain; display: none;">
+            <div style="text-align: left;">
+                <h1 id="tp-name" style="margin: 0; font-size: 2.2em; text-transform: uppercase; line-height: 1;">NOME</h1>
+                <h3 id="tp-group" style="color: #66b3ff; margin-top: 5px; margin-bottom: 0;">Grupo X</h3>
             </div>
-            <div style="width: 100%; max-width: 300px; background: var(--panel-bg); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
-                <div style="font-size: 1.1em; color: var(--text-muted);">Posição Geral: <strong id="tp-pos" style="color:#ffaa00; font-size: 1.4em;">0º</strong></div>
-            </div>
-            <div id="tp-next-match-container" style="width: 100%;"></div>
         </div>
-
-        <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-
-        <h3 style="color: #fff; margin-bottom: 15px; letter-spacing: 2px;">JOGADORES</h3>
-        <div id="tp-players-cards-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 40px; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);"></div>
-
-        <h3 style="margin-top: 25px; border-bottom: 1px solid #333; padding-bottom: 10px;">DESEMPENHO DA EQUIPE</h3>
-        <div class="filters">
-            <label style="color: var(--text-muted); font-weight: bold;">Estatísticas do Período:</label>
-            <div class="day-filters" id="tp-day-filters"></div>
+        <div style="width: 100%; max-width: 300px; background: var(--panel-bg); border: 1px solid var(--border); padding: 10px; border-radius: 8px;">
+            <div style="font-size: 1.1em; color: var(--text-muted);">Posição Geral: <strong id="tp-pos" style="color:#ffaa00; font-size: 1.4em;">0º</strong></div>
         </div>
-        <div class="grid-cards" id="tp-stats-container"></div>
-
-        <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">DESEMPENHO CONTRA GRUPOS OPONENTES</h3>
-        <div class="filters">
-            <label style="color: var(--text-muted); font-weight: bold;">Selecionar Grupo Oponente:</label>
-            <select id="tp-opp-group" onchange="renderTeamConfrontation()"></select>
-        </div>
-        <div class="grid-cards" id="tp-confrontation-result"></div>
-        
-        <div style="text-align: right; margin-top: -10px; margin-bottom: 30px;">
-            <button class="btn-action" onclick="openConfrontationModal()" id="btn-confrontation">Ver Ranking do Confronto Completo</button>
-        </div>
-
-        <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">Classificação Interna</h3>
-        <div class="table-container">
-            <table id="table-team-players">
-                <thead>
-                    <tr>
-                        <th onclick="sortTable('table-team-players', 0, false)">Jog ↕</th>
-                        <th onclick="sortTable('table-team-players', 1, true)" title="Abates"><span class="full-name-desktop">Abates</span><span class="short-name-mobile">A</span> ↕</th>
-                        <th onclick="sortTable('table-team-players', 2, true)" title="Dano"><span class="full-name-desktop">Dano</span><span class="short-name-mobile">D</span> ↕</th>
-                        <th onclick="sortTable('table-team-players', 3, true)" title="Assistências"><span class="full-name-desktop">Assistências</span><span class="short-name-mobile">AS</span> ↕</th>
-                        <th onclick="sortTable('table-team-players', 4, true)" title="Quedas"><span class="full-name-desktop">Quedas</span><span class="short-name-mobile">Q</span> ↕</th>
-                        <th onclick="sortTable('table-team-players', 5, true)" title="MVPs"><span class="full-name-desktop">MVPs</span><span class="short-name-mobile">M</span> ↕</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        <div id="tp-next-match-container" style="width: 100%;"></div>
     </div>
+
+    <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
+
+    <h3 style="color: #fff; margin-bottom: 15px; letter-spacing: 2px;">JOGADORES E STAFF</h3>
+    <div id="tp-players-cards-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin-bottom: 30px;"></div>
+
+    <div id="tp-best-worst-container" style="margin-bottom: 30px;"></div>
+
+    <h3 style="margin-top: 25px; border-bottom: 1px solid #333; padding-bottom: 10px;">DESEMPENHO DA EQUIPE</h3>
+    <div class="filters">
+        <label style="color: var(--text-muted); font-weight: bold;">Estatísticas do Período:</label>
+        <div class="day-filters" id="tp-day-filters"></div>
+    </div>
+    <div class="grid-cards" id="tp-stats-container"></div>
+
+    <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">DESEMPENHO CONTRA GRUPOS OPONENTES</h3>
+    <div class="filters">
+        <label style="color: var(--text-muted); font-weight: bold;">Selecionar Grupo Oponente:</label>
+        <select id="tp-opp-group" onchange="renderTeamConfrontation()"></select>
+    </div>
+    <div class="grid-cards" id="tp-confrontation-result"></div>
+    
+    <div style="text-align: right; margin-top: -10px; margin-bottom: 30px;">
+        <button class="btn-action" onclick="openConfrontationModal()" id="btn-confrontation">Ver Ranking do Confronto Completo</button>
+    </div>
+
+    <h3 style="margin-top: 35px; border-bottom: 1px solid #333; padding-bottom: 10px;">Classificação Interna</h3>
+    <div class="table-container">
+        <table id="table-team-players">
+            <thead>
+                <tr>
+                    <th onclick="sortTable('table-team-players', 0, false)">Jog ↕</th>
+                    <th onclick="sortTable('table-team-players', 1, true)">Abates ↕</th>
+                    <th onclick="sortTable('table-team-players', 2, true)">Dano ↕</th>
+                    <th onclick="sortTable('table-team-players', 3, true)">Assist. ↕</th>
+                    <th onclick="sortTable('table-team-players', 4, true)">Quedas ↕</th>
+                    <th onclick="sortTable('table-team-players', 5, true)">MVPs ↕</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <h3 style="margin-top: 50px; border-bottom: 1px solid #333; padding-bottom: 10px; color: #ffd700;">Galeria de Troféus Coletivos</h3>
+    <div id="tp-trophies-container" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px; margin-bottom: 40px; background: rgba(255,215,0,0.02); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,215,0,0.1);">
+    </div>
+</div>
 
 <div id="selection-wb" class="page">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -901,19 +908,19 @@
         <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9em;">Compare o mesmo jogador em edições diferentes, ou dois jogadores na mesma edição.</p>
         
         <div style="background: var(--panel-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px;">
-            <div class="hist-selector-grid">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <select id="hist-comp-p1" onchange="renderHistCompare()"></select>
-                    <select id="hist-comp-ed1" onchange="renderHistCompare()"></select>
-                </div>
-                
-                <div style="text-align: center; font-weight: bold; color: var(--accent); font-size: 1.2em;">VS</div>
-                
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <select id="hist-comp-p2" onchange="renderHistCompare()"></select>
-                    <select id="hist-comp-ed2" onchange="renderHistCompare()"></select>
-                </div>
-            </div>
+<div class="hist-selector-grid">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+        <select id="hist-comp-p1" onchange="updateEditionOptions('hist-comp-p1', 'hist-comp-ed1'); renderHistCompare()"></select>
+        <select id="hist-comp-ed1" onchange="renderHistCompare()"></select>
+    </div>
+    
+    <div style="text-align: center; font-weight: bold; color: var(--accent); font-size: 1.2em;">VS</div>
+    
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+        <select id="hist-comp-p2" onchange="updateEditionOptions('hist-comp-p2', 'hist-comp-ed2'); renderHistCompare()"></select>
+        <select id="hist-comp-ed2" onchange="renderHistCompare()"></select>
+    </div>
+</div>
 
             <div class="compare-container" id="hist-compare-result"></div>
         </div>
@@ -1064,7 +1071,13 @@ const titlesData = {
         { event: "LBFF 5", type: "Campeão", team: "VIVO KEYD", teamImg: "keyd.webp", players: ["MODESTIA", "KBÇÃO", "DeadGOD", "NANDO9", "General!"], staff: ["Stark"] },
         { event: "LBFF 4", type: "Campeão", team: "FLUXO", teamImg: "Fluxo 2.png", players: ["Nobru", "Syaz", "GØDKILL", "Fac", "JapaBKR"], staff: ["K9"] },
         { event: "LBFF 3", type: "Campeão", team: "SS ESPORTS", teamImg: "ss esports.webp", players: ["Taami", "Antunes22", "Cauan7", "Aranha", "LEAL7", "Pão7"], staff: ["Metal"] },
-        { event: "LBFF 1", type: "Campeão", team: "TEAM LIQUID", teamImg: "tl.webp", players: ["LUUUKING", "Boss", "Martins", "LukasTD", "Zenac"], staff: ["Matheus Souto"] }
+        { event: "LBFF 1", type: "Campeão", team: "TEAM LIQUID", teamImg: "tl.webp", players: ["LUUUKING", "Raposo", "LukasTD", "JapaBKR", "PEU"], staff: ["Matheus Souto"] },
+        { event: "C.O.P.A. FF 2020", type: "Campeão", team: "BLACK DRAGONS", teamImg: "bd.webp", players: ["Jubinha", "Phoenix23", "Bruno7", "OTREMBB", "PEDRO.RS"], staff: ["Stark"] },
+        { event: "C.O.P.A. FF 2022", type: "Campeão", team: "BD VASCO", teamImg: "bd vasco.webp", players: ["LOIRORJ", "EASY", "LENNO", "HENDER"], staff: ["Izzac"] },
+        { event: "C.O.P.A. FF 2023", type: "Campeão", team: "MAGIC SQUAD", teamImg: "magic squad.webp", players: ["Bops", "Giuh", "Yago", "BuTziN", "Erick11"], staff: ["LUUUKING", "Renan"] },
+        { event: "C.O.P.A. FF 2024", type: "Campeão", team: "TEAM SOLID", teamImg: "Team Solid 2.png", players: ["GUAXA", "TRAP", "NICKZ", "TATU13"], staff: ["JOKER", "Jaya"] },
+        { event: "C.O.P.A. FF 2025", type: "Campeão", team: "FLUXO", teamImg: "Fluxo 2.png", players: ["MT7", "Bops", "BuTziN", "Giuh", "Proxx7"], staff: ["LUUUKING", "Renan"] },
+        { event: "C.O.P.A. FF 2026", type: "Campeão", team: "FLUXO", teamImg: "Fluxo 2.png", players: ["MT7", "Bops", "BuTziN", "Giuh", "Proxx7"], staff: ["LUUUKING", "Renan"] }
     ],
     individuais: [
         { event: "WB 2025 S2", type: "MVP Geral", team: "FLUXO", teamImg: "Fluxo 2.png", player: "MT7" },
@@ -1084,7 +1097,14 @@ const titlesData = {
         { event: "LBFF 5", type: "MVP Geral", team: "FLUXO", teamImg: "Fluxo 2.png", player: "Syaz" },
         { event: "LBFF 4", type: "MVP Geral", team: "SANTOS", teamImg: "santos.webp", player: "Ruan" },
         { event: "LBFF 3", type: "MVP Geral", team: "SS ESPORTS", teamImg: "ss esports.webp", player: "Cauan7" },
-        { event: "LBFF 1", type: "MVP Geral", team: "TEAM LIQUID", teamImg: "tl.webp", player: "JapaBKR" }
+        { event: "LBFF 1", type: "MVP Geral", team: "TEAM LIQUID", teamImg: "tl.webp", player: "JapaBKR" },
+        { event: "C.O.P.A. FF 2020", type: "MVP Geral", team: "PAIN GAMING", teamImg: "silhueta.png", player: "Geerty" },
+{ event: "C.O.P.A. FF 2022", type: "MVP Geral", team: "TSM", teamImg: "tsm.webp", player: "Raone7" },
+{ event: "C.O.P.A. FF 2023", type: "MVP Geral", team: "KEYD", teamImg: "keyd.webp", player: "Raone7" },
+{ event: "C.O.P.A. FF 2024", type: "MVP Geral", team: "TEAM SOLID", teamImg: "Team Solid 2.png", player: "TRAP" },
+{ event: "C.O.P.A. FF 2025", type: "MVP Geral", team: "FLUXO", teamImg: "Fluxo 2.png", player: "MT7" },
+{ event: "C.O.P.A. FF 2026", type: "MVP Grupos", team: "RUSH GAMING", teamImg: "Rush.png", player: "BLACK02" },
+{ event: "C.O.P.A. FF 2026", type: "MVP Final", team: "ALFA 34", teamImg: "a34.webp", player: "MitinX" }
     ]
 };
 
@@ -3103,6 +3123,7 @@ window.onload = () => {
     // --> FUNÇÕES DA ABA HISTÓRICO <--
     buildEditionFilters();
     renderEditionRanking();
+    populateHistSelects();
     renderHistCompare();
     renderHistoricalRanking();
     
@@ -3337,57 +3358,85 @@ let playersData = db.players.filter(p => p?.isPlaying !== false); // Já botei u
     // --- LÓGICA DA PESQUISA GLOBAL ---
     // ==========================================
 
-    function handleGlobalSearch() {
-        let input = document.getElementById('global-search').value.toLowerCase();
-        let resultsBox = document.getElementById('search-results');
-        
-        // Só começa a buscar se o usuário digitar 2 letras ou mais
-        if(input.length < 2) {
-            resultsBox.style.display = 'none';
-            return;
-        }
-
-        // Filtra Jogadores (pelo Nick) e Equipes (pelo Nome ou Sigla)
-        let foundPlayers = db.players.filter(p => p.jogador.toLowerCase().includes(input));
-        let foundTeams = db.teams.filter(t => t.equipe.toLowerCase().includes(input) || (shortNames[t.equipe] && shortNames[t.equipe].toLowerCase().includes(input)));
-        
-        if(foundPlayers.length === 0 && foundTeams.length === 0) {
-            resultsBox.innerHTML = '<div style="padding:20px; color:#888; text-align:center; font-weight:bold;">Nenhum resultado encontrado.</div>';
-            resultsBox.style.display = 'block';
-            return;
-        }
-
-        let html = '';
-        
-        // Desenha os cards das Equipes
-        foundTeams.forEach(t => {
-            let logoSrc = logos[t.equipe] || '';
-            html += `
-            <div class="search-item" onclick="selectSearchResult('team', '${t.equipe}')">
-                <img src="${logoSrc}">
-                <div class="search-item-info">
-                    <span class="search-item-name">${t.equipe}</span>
-                    <span class="search-item-sub">Página da Equipe</span>
-                </div>
-            </div>`;
-        });
-
-        // Desenha os cards dos Jogadores
-        foundPlayers.forEach(p => {
-            let pPhoto = playerPhotos[p.jogador] || 'silhueta.png';
-            html += `
-            <div class="search-item" onclick="selectSearchResult('player', '${p.jogador}')">
-                <img src="${pPhoto}">
-                <div class="search-item-info">
-                    <span class="search-item-name">${p.jogador}</span>
-                    <span class="search-item-sub">${p.equipe}</span>
-                </div>
-            </div>`;
-        });
-
-        resultsBox.innerHTML = html;
-        resultsBox.style.display = 'block';
+    // --- LÓGICA DA PESQUISA GLOBAL ---
+function handleGlobalSearch() {
+    let input = document.getElementById('global-search').value.toLowerCase();
+    let resultsBox = document.getElementById('search-results');
+    
+    // Só começa a buscar se o usuário digitar 2 letras ou mais
+    if(input.length < 2) {
+        resultsBox.style.display = 'none';
+        return;
     }
+
+    // 1. Monta uma lista com todos os jogadores (Ativos + Inativos)
+    let allSearchablePlayers = [...db.players];
+    let activeNames = db.players.map(p => p.jogador.toLowerCase());
+
+    // Puxa do histData (Top 100)
+    histData.forEach(h => {
+        let alias = (historicalAliases[h.n] || '').toLowerCase();
+        if (!activeNames.includes(h.n.toLowerCase()) && !activeNames.includes(alias)) {
+            allSearchablePlayers.push({ jogador: h.n, equipe: 'INATIVO', isEx: true });
+            activeNames.push(h.n.toLowerCase());
+        }
+    });
+
+    // Puxa do lbffData (Restante histórico)
+    Object.keys(lbffData).forEach(name => {
+        let alias = (historicalAliases[name] || '').toLowerCase();
+        if (!activeNames.includes(name.toLowerCase()) && !activeNames.includes(alias)) {
+            allSearchablePlayers.push({ jogador: name, equipe: 'INATIVO', isEx: true });
+            activeNames.push(name.toLowerCase());
+        }
+    });
+
+    // 2. Filtra Jogadores e Equipes pelo que foi digitado
+    let foundPlayers = allSearchablePlayers.filter(p => p.jogador.toLowerCase().includes(input));
+    let foundTeams = db.teams.filter(t => t.equipe.toLowerCase().includes(input) || (shortNames[t.equipe] && shortNames[t.equipe].toLowerCase().includes(input)));
+    
+    if(foundPlayers.length === 0 && foundTeams.length === 0) {
+        resultsBox.innerHTML = '<div style="padding:20px; color:#888; text-align:center; font-weight:bold;">Nenhum resultado encontrado.</div>';
+        resultsBox.style.display = 'block';
+        return;
+    }
+
+    let html = '';
+    
+    // Desenha os cards das Equipes
+    foundTeams.forEach(t => {
+        let logoSrc = logos[t.equipe] || '';
+        html += `
+        <div class="search-item" onclick="selectSearchResult('team', '${t.equipe}')">
+            <img src="${logoSrc}">
+            <div class="search-item-info">
+                <span class="search-item-name">${t.equipe}</span>
+                <span class="search-item-sub">Página da Equipe</span>
+            </div>
+        </div>`;
+    });
+
+    // Desenha os cards dos Jogadores (Ativos e Inativos)
+    foundPlayers.forEach(p => {
+        // Se for inativo, força a silhueta. Se for ativo, tenta buscar a foto dele.
+        let pPhoto = p.isEx ? 'silhueta.png' : (playerPhotos[p.jogador] || 'silhueta.png');
+        
+        // Estiliza a legenda de Inativo
+        let subText = p.isEx ? '<span style="color:#ff4444; font-weight:bold; letter-spacing: 1px; font-size: 0.9em;">INATIVO</span>' : p.equipe;
+
+        html += `
+        <div class="search-item" onclick="selectSearchResult('player', '${p.jogador}')">
+            <img src="${pPhoto}">
+            <div class="search-item-info">
+                <span class="search-item-name">${p.jogador}</span>
+                <span class="search-item-sub">${subText}</span>
+            </div>
+        </div>`;
+    });
+
+    resultsBox.innerHTML = html;
+    resultsBox.style.display = 'block';
+}
 
     // Ação ao clicar em um resultado
     function selectSearchResult(type, name) {
@@ -3648,6 +3697,32 @@ function renderEditionRanking() {
             <td style="color:#ffaa00;">${p.avg}</td>
         </tr>`;
     }).join('');
+}
+
+// Preenche os selects do Comparador Histórico
+function populateHistSelects() {
+    let p1 = document.getElementById('hist-comp-p1');
+    let p2 = document.getElementById('hist-comp-p2');
+    if(!p1 || !p2) return;
+
+    // Pega todos os jogadores que têm histórico no lbffData OU estão ativos
+    let allHistoricalPlayers = new Set([
+        ...Object.keys(lbffData),
+        ...db.players.map(p => historicalAliases[p.jogador] || p.jogador)
+    ]);
+
+    let sortedPlayers = [...allHistoricalPlayers].sort((a,b) => a.localeCompare(b));
+
+    let optionsHtml = sortedPlayers.map(p => `<option value="${p}">${p}</option>`).join('');
+    p1.innerHTML = optionsHtml;
+    p2.innerHTML = optionsHtml;
+
+    // Seleciona um diferente pro P2 pra não começar espelhado
+    if(p2.options.length > 1) p2.selectedIndex = 1;
+
+    // Atualiza as edições disponíveis para os jogadores iniciais
+    updateEditionOptions('hist-comp-p1', 'hist-comp-ed1');
+    updateEditionOptions('hist-comp-p2', 'hist-comp-ed2');
 }
 
 // Preenche os selects da aba Histórico
@@ -4553,12 +4628,56 @@ function renderTeamProfileStats() {
         allTeamsStats.push({ equipe: team.equipe, pontos: stats.pontos, abates: stats.abates, pontos_pos: stats.pontos - stats.abates, dano: dano, booyah: stats.booyah, quedas: daily.length * 6, dias: daily.length });
     });
 
-    const getRank = (field) => {
-        let sorted = [...allTeamsStats].sort((a, b) => b[field] - a[field]);
-        return sorted.findIndex(x => x.equipe === tName) + 1;
-    };
     let cur = allTeamsStats.find(x => x.equipe === tName);
 
+    // 1. Renderiza Melhor/Pior Dia (ACIMA do desempenho)
+    let bestWorstContainer = document.getElementById('tp-best-worst-container');
+    if(bestWorstContainer) {
+        let htmlBW = '';
+        if(db.teamDaily[tName] && db.teamDaily[tName].length > 0) {
+            let sorted = [...db.teamDaily[tName]].sort((a,b) => b.pontos - a.pontos);
+            htmlBW = `
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div class="card" style="flex: 1; border-left: 4px solid #4caf50;">
+                        <h3 style="font-size: 0.8em;">🏆 Melhor Desempenho</h3>
+                        <div class="value" style="font-size: 1.5em;">${sorted[0].pontos} <span style="font-size: 0.5em; color: #888;">PTS (DIA ${sorted[0].dia})</span></div>
+                    </div>
+                    <div class="card" style="flex: 1; border-left: 4px solid #f44336;">
+                        <h3 style="font-size: 0.8em;">⚠️ Pior Desempenho</h3>
+                        <div class="value" style="font-size: 1.5em;">${sorted[sorted.length-1].pontos} <span style="font-size: 0.5em; color: #888;">PTS (DIA ${sorted[sorted.length-1].dia})</span></div>
+                    </div>
+                </div>`;
+        }
+        bestWorstContainer.innerHTML = htmlBW;
+    }
+
+// 2. Renderiza Grade de Estatísticas
+    let container = document.getElementById('tp-stats-container');
+    if(container && cur) {
+        // ESSA É A LINHA MÁGICA QUE FALTAVA PARA EMPILHAR AS DUAS FILEIRAS:
+        container.style.display = "block"; 
+        
+        let gridCSS = window.innerWidth > 1000 ? "grid-template-columns: repeat(5, 1fr);" : "grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));";
+
+        container.innerHTML = `
+            <div style="display: grid; ${gridCSS} gap: 15px; margin-bottom: 15px;">
+                <div class="card"><div class="card-top-border"></div><h3 style="font-size:0.9em">Média Pts</h3><div class="value">${(cur.pontos/(cur.quedas||1)).toFixed(1)}</div><div style="color:#888;font-size:0.8em;margin-top:5px;">Por queda</div></div>
+                <div class="card"><div class="card-top-border"></div><h3 style="font-size:0.9em">Média Abates</h3><div class="value">${(cur.abates/(cur.quedas||1)).toFixed(1)}</div><div style="color:#888;font-size:0.8em;margin-top:5px;">Por queda</div></div>
+                <div class="card"><div class="card-top-border"></div><h3 style="font-size:0.9em">Média Colocação</h3><div class="value">${(cur.pontos_pos/(cur.quedas||1)).toFixed(1)}</div><div style="color:#888;font-size:0.8em;margin-top:5px;">Por queda</div></div>
+                <div class="card"><div class="card-top-border"></div><h3 style="font-size:0.9em">Média Dano</h3><div class="value">${(cur.dano/(cur.quedas||1)).toFixed(0)}</div><div style="color:#888;font-size:0.8em;margin-top:5px;">Por queda</div></div>
+                <div class="card"><div class="card-top-border"></div><h3 style="font-size:0.9em">Média Booyah</h3><div class="value">${(cur.booyah/(cur.dias||1)).toFixed(2)}</div><div style="color:#888;font-size:0.8em;margin-top:5px;">Por dia</div></div>
+            </div>
+
+            <div style="display: grid; ${gridCSS} gap: 15px;">
+                <div class="card" style="background: rgba(255,170,0,0.05); border: 1px solid #444;"><div class="card-top-border" style="background:#888"></div><h3 style="font-size:0.9em">Pontos Totais</h3><div class="value" style="color:#fff">${cur.pontos}</div></div>
+                <div class="card" style="background: rgba(255,170,0,0.05); border: 1px solid #444;"><div class="card-top-border" style="background:#888"></div><h3 style="font-size:0.9em">Abates Totais</h3><div class="value" style="color:#fff">${cur.abates}</div></div>
+                <div class="card" style="background: rgba(255,170,0,0.05); border: 1px solid #444;"><div class="card-top-border" style="background:#888"></div><h3 style="font-size:0.9em">Pts Colocação</h3><div class="value" style="color:#fff">${cur.pontos_pos}</div></div>
+                <div class="card" style="background: rgba(255,170,0,0.05); border: 1px solid #444;"><div class="card-top-border" style="background:#888"></div><h3 style="font-size:0.9em">Dano Acumulado</h3><div class="value" style="color:#fff">${cur.dano}</div></div>
+                <div class="card" style="background: rgba(255,170,0,0.05); border: 1px solid #444;"><div class="card-top-border" style="background:#888"></div><h3 style="font-size:0.9em">Booyahs Totais</h3><div class="value" style="color:#fff">${cur.booyah}</div></div>
+            </div>`;
+    }
+
+    // 3. Renderiza Jogadores e Staff (Aproveita a lógica que você já tinha)
     let pRaw = db.playerDaily.filter(p => p.equipe === tName);
     if (selectedTpDays.length > 0) pRaw = pRaw.filter(p => selectedTpDays.includes(String(p.dia)));
     let agg = {};
@@ -4566,46 +4685,47 @@ function renderTeamProfileStats() {
         if (!agg[row.jogador]) agg[row.jogador] = { jogador: row.jogador, equipe: row.equipe, quedas: 0, abates: 0, dano: 0, assists: 0, mvp: 0 };
         agg[row.jogador].quedas += row.quedas; agg[row.jogador].abates += row.abates; agg[row.jogador].dano += row.dano; agg[row.jogador].assists += row.assists; agg[row.jogador].mvp += (row.mvp || 0);
     });
-
-    let players = Object.values(agg).map(pAgg => {
-        let dbP = db.players.find(x => x.jogador === pAgg.jogador);
-        pAgg.isEx = dbP ? (dbP.isEx || false) : false;
-        return pAgg;
-    });
+    let players = Object.values(agg);
 
     let cardsContainer = document.getElementById('tp-players-cards-container');
-    if (cardsContainer) {
-        let ativos = players.filter(p => !p.isEx).sort((a,b) => b.abates - a.abates);
-        let inativos = players.filter(p => p.isEx).sort((a,b) => b.abates - a.abates);
-        let html = ativos.map(p => createPlayerCardHTML(p, 0.9)).join('');
-        
-        if (inativos.length > 0) {
-            html += `<div style="width: 100%; text-align: center; margin-top: 15px;"><button class="btn-action" onclick="let c = document.getElementById('ex-players-div'); if(c.style.display==='none'){c.style.display='flex'; this.innerText='Ocultar Ex-Jogadores';}else{c.style.display='none'; this.innerText='Ver Ex-Jogadores';}" style="background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-size: 0.85em; padding: 8px 15px;">Ver Ex-Jogadores</button></div>
-            <div id="ex-players-div" style="display: none; width: 100%; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 10px; padding-top: 25px; border-top: 1px dashed #333;">${inativos.map(p => createPlayerCardHTML(p, 0.9)).join('')}</div>`;
-        }
-
-        // Adiciona Comissão Técnica
-        let staffList = dbStaff.filter(s => s.equipe === tName);
-        if (staffList.length > 0) {
-            html += `<div style="width: 100%; margin-top: 30px;"><h3 style="color: #fff; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase;">Comissão Técnica</h3><div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 15px;">${staffList.map(s => `<div onclick="openStaffProfile('${s.nome}')" style="cursor: pointer; background: #26262b; border: 1px solid var(--border); padding: 15px; border-radius: 10px; min-width: 180px; text-align: center;"><div style="color: #fff; font-weight: bold;">${s.nome}</div><div style="color: var(--accent); font-size: 0.8em; text-transform: uppercase;">${s.cargo}</div></div>`).join('')}</div></div>`;
-        }
-        cardsContainer.innerHTML = html;
+    let staffList = dbStaff.filter(s => s.equipe === tName);
+    let htmlPlayers = players.sort((a,b) => b.abates - a.abates).map(p => createPlayerCardHTML(p, 0.85)).join('');
+    let htmlStaff = staffList.map(s => `<div onclick="openStaffProfile('${s.nome}')" style="cursor: pointer; background: #26262b; border: 1px solid var(--border); padding: 10px; border-radius: 10px; min-width: 140px; text-align: center;"><div style="color: #fff; font-size: 0.9em; font-weight: bold;">${s.nome}</div><div style="color: var(--accent); font-size: 0.7em; text-transform: uppercase;">${s.cargo}</div></div>`).join('');
+    
+    if(cardsContainer) {
+        cardsContainer.innerHTML = htmlPlayers + (htmlStaff ? `<div style="width: 100%; display: flex; justify-content: center; gap: 10px; margin-top: 15px; flex-wrap: wrap;">${htmlStaff}</div>` : '');
     }
 
-    let container = document.getElementById('tp-stats-container');
-    if(container && cur) {
-        container.style.display = "block";
-        let gridCSS = window.innerWidth > 1000 ? "grid-template-columns: repeat(5, 1fr);" : "grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));";
-        let bestWorst = '';
-        if(db.teamDaily[tName] && db.teamDaily[tName].length > 0) {
-            let sorted = [...db.teamDaily[tName]].sort((a,b) => b.pontos - a.pontos);
-            bestWorst = `<div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;"><div class="card" style="flex: 1; border-left: 4px solid #4caf50;"><h3>🏆 Melhor Dia</h3><div class="value">${sorted[0].pontos} pts</div></div><div class="card" style="flex: 1; border-left: 4px solid #f44336;"><h3>⚠️ Pior Dia</h3><div class="value">${sorted[sorted.length-1].pontos} pts</div></div></div>`;
-        }
-        container.innerHTML = bestWorst + `<div style="display: grid; ${gridCSS} gap: 15px; margin-bottom: 20px;"><div class="card"><h3>Média Pts</h3><div class="value">${(cur.pontos/(cur.quedas||1)).toFixed(1)}</div></div><div class="card"><h3>Média Abates</h3><div class="value">${(cur.abates/(cur.quedas||1)).toFixed(1)}</div></div><div class="card"><h3>Média Colo</h3><div class="value">${(cur.pontos_pos/(cur.quedas||1)).toFixed(1)}</div></div><div class="card"><h3>Média Dano</h3><div class="value">${(cur.dano/(cur.quedas||1)).toFixed(0)}</div></div><div class="card"><h3>Média Booyah</h3><div class="value">${(cur.booyah/(cur.dias||1)).toFixed(2)}</div></div></div><div style="display: grid; ${gridCSS} gap: 15px;"><div class="card"><h3>Pts Totais</h3><div class="value">${cur.pontos}</div></div><div class="card"><h3>Abates</h3><div class="value">${cur.abates}</div></div><div class="card"><h3>Pts Colo</h3><div class="value">${cur.pontos_pos}</div></div><div class="card"><h3>Dano</h3><div class="value">${cur.dano}</div></div><div class="card"><h3>Booyahs</h3><div class="value">${cur.booyah}</div></div></div>`;
-    }
-
+    // 4. TABELA DE CLASSIFICAÇÃO INTERNA
     let tbody = document.querySelector('#table-team-players tbody');
-    tbody.innerHTML = players.sort((a,b) => b.abates - a.abates).map(p => `<tr><td style="text-align:left;"><span class="clickable full-name-desktop" onclick="openPlayerProfile('${p.jogador}')">${p.jogador}</span><span class="clickable short-name-mobile" onclick="openPlayerProfile('${p.jogador}')">${p.jogador.length > 7 ? p.jogador.substring(0, 6) + "..." : p.jogador}</span></td><td style="color:var(--accent); font-weight:bold;">${p.abates}</td><td>${p.dano}</td><td>${p.assists}</td><td style="color:var(--text-muted); font-weight:bold;">${p.quedas}</td><td>${p.mvp || 0}</td></tr>`).join('');
+    tbody.innerHTML = players.sort((a,b) => b.abates - a.abates).map(p => `<tr><td style="text-align:left;"><span class="clickable" onclick="openPlayerProfile('${p.jogador}')">${p.jogador}</span></td><td style="color:var(--accent); font-weight:bold;">${p.abates}</td><td>${p.dano}</td><td>${p.assists}</td><td>${p.quedas}</td><td>${p.mvp || 0}</td></tr>`).join('');
+
+    // 5. NOVA SEÇÃO: GALERIA DE TROFÉUS COLETIVOS (Fim da página)
+    renderTeamTrophies(tName);
+}
+
+// Função auxiliar para renderizar os troféus da equipe
+function renderTeamTrophies(teamName) {
+    let container = document.getElementById('tp-trophies-container');
+    if(!container) return;
+
+    // Filtra títulos coletivos onde a equipe foi campeã
+    let teamTitles = titlesData.coletivos.filter(t => t.team.toUpperCase() === teamName.toUpperCase());
+
+    if (teamTitles.length === 0) {
+        container.innerHTML = '<div style="color:#888; text-align:center; width:100%; padding:20px;">Nenhum título oficial registrado para esta organização.</div>';
+        return;
+    }
+
+    container.innerHTML = teamTitles.map(t => {
+        let tournamentImg = t.event.includes("WB") ? "wb.webp" : (t.event.includes("C.O.P.A") ? "copaff.png" : "lbff.webp");
+        return `
+        <div class="trophy-card border-campeao">
+            <img src="${tournamentImg}" class="trophy-img" style="height: 50px;">
+            <div style="font-weight:bold; font-size:0.75em; color:#fff; text-align:center; margin-top:5px;">${t.event}</div>
+            <div style="color:var(--accent); font-size:0.65em; font-weight:bold; text-transform:uppercase;">Campeão</div>
+        </div>`;
+    }).join('');
 }
 
 function getConfrontationData() {
@@ -4851,21 +4971,31 @@ function openPlayerProfile(playerName) {
         teamEl.style.cursor = isInactive ? "default" : "pointer";
     }
 
-    // --- CÁLCULO HISTÓRICO ---
+// --- CÁLCULO HISTÓRICO ---
     let histKills = 0, histQuedas = 0, lastEd = "N/A";
-    let histRecord = histData.find(h => checkNameMatch(h.n, p.jogador));
     
+    let histRecord = histData.find(h => checkNameMatch(h.n, p.jogador));
+    let playerEntries = Object.entries(lbffData).find(([name]) => checkNameMatch(name, p.jogador));
+
     if (histRecord) {
+        // Se está no Top 100, puxa direto o valor já somado
         histKills = histRecord.k;
         histQuedas = histRecord.q;
+    } else if (playerEntries) {
+        // Se não está no Top 100 mas tem histórico, soma edição por edição manualmente
+        let editionsData = playerEntries[1];
+        for (let ed in editionsData) {
+            histKills += editionsData[ed].k || 0;
+            histQuedas += editionsData[ed].q || 0;
+        }
     }
 
-    let playerEntries = Object.entries(lbffData).find(([name]) => checkNameMatch(name, p.jogador));
     if (playerEntries) {
         let editions = Object.keys(playerEntries[1]);
         lastEd = editions[editions.length - 1]; 
     }
 
+    // Soma com a edição atual (se ele estiver jogando)
     histKills += (p.abates || 0);
     histQuedas += (p.quedas || 0);
 
